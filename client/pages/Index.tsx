@@ -7,6 +7,7 @@ import {
   ArrowRight, Play, Check, AlertTriangle, TrendingUp,
   MapPin, Layers, Clock, Award, Eye, Lock, Minus, Plus
 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 // Intersection Observer Hook for scroll animations
 const useIntersectionObserver = (options = {}) => {
@@ -705,6 +706,22 @@ const TestimonialsSection = () => {
 const PricingSection = () => {
   const [ref, isVisible] = useIntersectionObserver();
   const [isYearly, setIsYearly] = useState(false);
+  const [paymentOpen, setPaymentOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<{ name: string; amount: number }>({ name: '', amount: 0 });
+
+  const merchantVpa = (import.meta.env.VITE_MERCHANT_UPI as string) || 'example@upi';
+  const merchantName = (import.meta.env.VITE_MERCHANT_NAME as string) || 'InMyStack';
+
+  const buildUpiLink = (amount: number, note: string) => {
+    const params = new URLSearchParams({
+      pa: merchantVpa,
+      pn: merchantName,
+      am: String(amount),
+      cu: 'INR',
+      tn: note,
+    });
+    return `upi://pay?${params.toString()}`;
+  };
 
   const plans = [
     {
@@ -825,10 +842,21 @@ const PricingSection = () => {
                   )}
                 </div>
 
-                <button className={`w-full py-3 px-6 rounded-lg font-medium transition-all ${plan.popular
+                <button
+                  className={`w-full py-3 px-6 rounded-lg font-medium transition-all ${plan.popular
                     ? 'bg-accent text-accent-foreground btn-hover'
                     : 'border border-border text-foreground hover:bg-muted'
-                  }`}>
+                  }`}
+                  onClick={() => {
+                    if (plan.name === 'Business') {
+                      window.location.href = 'mailto:sales@inmystack.app?subject=Contact%20Sales%20-%20Business%20Plan';
+                      return;
+                    }
+                    const amount = isYearly ? plan.price.yearly : plan.price.monthly;
+                    setSelectedPlan({ name: plan.name, amount });
+                    setPaymentOpen(true);
+                  }}
+                >
                   {plan.cta}
                 </button>
 
@@ -845,6 +873,28 @@ const PricingSection = () => {
           ))}
         </div>
       </div>
+      {/* Lightweight payment modal using native UPI intent/QR fallback */}
+      <Dialog open={paymentOpen} onOpenChange={setPaymentOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Complete payment</DialogTitle>
+            <DialogDescription>
+              Plan: {selectedPlan.name} • Amount: ₹{selectedPlan.amount.toLocaleString()}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <a
+              href={buildUpiLink(selectedPlan.amount, `${selectedPlan.name} plan`)}
+              className="w-full inline-flex items-center justify-center h-11 rounded-lg bg-accent text-accent-foreground btn-hover"
+            >
+              Pay with UPI (PhonePe/Paytm/Google Pay)
+            </a>
+            <div className="text-xs text-muted-foreground">
+              Tip: On desktop, copy the UPI link into your UPI app if it doesn’t open automatically.
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };

@@ -572,10 +572,10 @@ export default function POS() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-      <div className="space-y-6 p-6">
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,rgba(59,130,246,0.06),transparent_45%),radial-gradient(ellipse_at_bottom_left,rgba(139,92,246,0.06),transparent_40%)] dark:bg-[radial-gradient(ellipse_at_top_right,rgba(59,130,246,0.08),transparent_45%),radial-gradient(ellipse_at_bottom_left,rgba(139,92,246,0.08),transparent_40%)]">
+      <div className="space-y-6 p-4 lg:p-6 max-w-[1400px] mx-auto">
         {/* Modern Header */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+        <div className="bg-white/80 dark:bg-slate-800/70 backdrop-blur supports-[backdrop-filter]:bg-white/60 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-5 lg:p-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -588,22 +588,22 @@ export default function POS() {
             <div className="flex items-center space-x-3">
               {lastOrder && (
                 <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm" onClick={viewLastBill} className="border-slate-300 hover:bg-slate-50">
+                  <Button variant="outline" size="sm" onClick={viewLastBill} className="border-slate-300 hover:bg-slate-50 rounded-lg transition-colors">
                     <FileText className="w-4 h-4 mr-2" />
                     View Last Bill
                   </Button>
-                  <Button variant="outline" size="sm" onClick={reprintLastBill} className="border-slate-300 hover:bg-slate-50">
+                  <Button variant="outline" size="sm" onClick={reprintLastBill} className="border-slate-300 hover:bg-slate-50 rounded-lg transition-colors">
                     <Printer className="w-4 h-4 mr-2" />
                     Reprint
                   </Button>
-                  <Button variant="outline" size="sm" onClick={downloadLastBill} className="border-slate-300 hover:bg-slate-50">
+                  <Button variant="outline" size="sm" onClick={downloadLastBill} className="border-slate-300 hover:bg-slate-50 rounded-lg transition-colors">
                     <Download className="w-4 h-4 mr-2" />
                     Download
                   </Button>
                 </div>
               )}
               {cartItems.length > 0 && (
-                <Button variant="outline" size="sm" onClick={clearCart} className="border-red-300 text-red-600 hover:bg-red-50">
+                <Button variant="outline" size="sm" onClick={clearCart} className="border-red-300 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
                   <Trash2 className="w-4 h-4 mr-2" />
                   Clear Cart
                 </Button>
@@ -613,11 +613,11 @@ export default function POS() {
         </div>
 
         {/* Main POS Interface */}
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 lg:gap-7">
           {/* Left Sidebar - Scanner & Search */}
-          <div className="xl:col-span-1 space-y-6">
+          <div className="xl:col-span-1 space-y-6 lg:space-y-7 lg:sticky lg:top-24 self-start">
             {/* Barcode Scanner */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-slate-200 dark:border-slate-700 overflow-hidden">
               <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4">
                 <h3 className="text-white font-semibold flex items-center">
                   <ScanLine className="w-5 h-5 mr-2" />
@@ -630,7 +630,7 @@ export default function POS() {
             </div>
 
             {/* Customer Selection */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-slate-200 dark:border-slate-700 relative">
               <div className="bg-gradient-to-r from-green-500 to-teal-600 p-4">
                 <h3 className="text-white font-semibold flex items-center">
                   <User className="w-5 h-5 mr-2" />
@@ -646,7 +646,7 @@ export default function POS() {
             </div>
 
             {/* Product Search */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-slate-200 dark:border-slate-700 relative">
               <div className="bg-gradient-to-r from-orange-500 to-red-600 p-4">
                 <h3 className="text-white font-semibold flex items-center">
                   <Search className="w-5 h-5 mr-2" />
@@ -657,7 +657,7 @@ export default function POS() {
                 <div className="space-y-4">
                   <ProductSearchDialog
                     trigger={
-                      <Button variant="outline" className="w-full h-12 border-slate-300 hover:bg-slate-50">
+                      <Button variant="outline" className="w-full h-12 rounded-lg border-slate-300 hover:bg-slate-50 transition-colors">
                         <Search className="w-5 h-5 mr-2" />
                         Browse Products
                       </Button>
@@ -665,7 +665,7 @@ export default function POS() {
                     onAddToCart={addProductToCart}
                   />
 
-                  <div className="bg-slate-50 dark:bg-slate-700 rounded-lg p-3">
+                  <div className="bg-slate-50 dark:bg-slate-700 rounded-xl p-3 border border-slate-200/60 dark:border-slate-600/60">
                     <div className="text-xs text-slate-600 dark:text-slate-400 space-y-1">
                       <p className="flex items-center">
                         <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></span>
@@ -687,9 +687,9 @@ export default function POS() {
           </div>
 
           {/* Main Content - Cart & Billing */}
-          <div className="xl:col-span-3 space-y-6">
+          <div className="xl:col-span-3 space-y-6 lg:space-y-7">
             {/* Shopping Cart */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-slate-200 dark:border-slate-700 overflow-hidden">
               <div className="bg-gradient-to-r from-indigo-500 to-blue-600 p-4">
                 <CardTitle className="text-white flex items-center justify-between">
                   <div className="flex items-center">
@@ -703,7 +703,7 @@ export default function POS() {
                   )}
                 </CardTitle>
               </div>
-              <div className="p-6">
+              <div className="p-4 lg:p-6">
                 {cartItems.length === 0 ? (
                   <div className="text-center py-12">
                     <div className="w-20 h-20 mx-auto mb-4 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
@@ -771,7 +771,7 @@ export default function POS() {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                  className="w-8 h-8 p-0 border-slate-300 hover:bg-slate-100"
+                                  className="w-8 h-8 p-0 border-slate-300 hover:bg-slate-100 rounded-md"
                                 >
                                   <Minus className="w-3 h-3" />
                                 </Button>
@@ -780,7 +780,7 @@ export default function POS() {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                  className="w-8 h-8 p-0 border-slate-300 hover:bg-slate-100"
+                                  className="w-8 h-8 p-0 border-slate-300 hover:bg-slate-100 rounded-md"
                                 >
                                   <Plus className="w-3 h-3" />
                                 </Button>
@@ -809,7 +809,7 @@ export default function POS() {
             </div>
 
             {/* Billing Summary */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-slate-200 dark:border-slate-700 overflow-hidden">
               <div className="bg-gradient-to-r from-emerald-500 to-green-600 p-4">
                 <CardTitle className="text-white flex items-center justify-between">
                   <div className="flex items-center">
@@ -821,9 +821,9 @@ export default function POS() {
                   </span>
                 </CardTitle>
               </div>
-              <div className="p-6 space-y-6">
+              <div className="p-4 lg:p-6 space-y-6">
                 {/* Bill Breakdown */}
-                <div className="bg-slate-50 dark:bg-slate-700 rounded-lg p-4 space-y-3">
+                <div className="bg-slate-50 dark:bg-slate-700 rounded-xl p-4 space-y-3 border border-slate-200/60 dark:border-slate-600/60">
                   <div className="flex justify-between items-center text-slate-600 dark:text-slate-400">
                     <span>Subtotal</span>
                     <span className="font-medium">{formatCurrency(subtotal)}</span>
@@ -876,7 +876,7 @@ export default function POS() {
                         <Button
                           key={method.id}
                           variant={isSelected ? "default" : "outline"}
-                          className={`h-14 relative overflow-hidden ${isSelected
+                          className={`h-14 rounded-xl relative overflow-hidden transition-all ${isSelected
                             ? `bg-gradient-to-r ${method.color} text-white border-0 shadow-lg`
                             : "border-slate-300 hover:bg-slate-50"
                             }`}
@@ -895,7 +895,7 @@ export default function POS() {
 
                 {/* Payment Details */}
                 {paymentMethod === 'card' && (
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 space-y-4">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 space-y-4">
                     <Label className="text-blue-700 dark:text-blue-300 font-semibold">Card Details</Label>
                     <div className="space-y-3">
                       <Input
@@ -931,7 +931,7 @@ export default function POS() {
                 )}
 
                 {paymentMethod === 'upi' && (
-                  <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4 space-y-4">
+                  <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-4 space-y-4">
                     <Label className="text-purple-700 dark:text-purple-300 font-semibold">UPI Payment</Label>
                     <div className="space-y-4">
                       <Input
@@ -962,7 +962,7 @@ export default function POS() {
               <div className="space-y-3 pt-4 border-t border-slate-200 dark:border-slate-700">
                 <Button
                   variant="outline"
-                  className="w-full h-12 border-slate-300 hover:bg-slate-50"
+                  className="w-full h-12 rounded-lg border-slate-300 hover:bg-slate-50 transition-colors"
                   onClick={previewBill}
                   disabled={cartItems.length === 0}
                 >
@@ -971,7 +971,7 @@ export default function POS() {
                 </Button>
 
                 <Button
-                  className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 shadow-lg"
+                  className="w-full h-14 text-lg font-semibold rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 shadow-lg shadow-emerald-500/20"
                   disabled={cartItems.length === 0 || !paymentMethod}
                   onClick={processPayment}
                 >

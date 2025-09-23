@@ -121,7 +121,7 @@ export default function CustomerSelector({ selectedCustomer, onCustomerSelect }:
                 variant="outline"
                 role="combobox"
                 aria-expanded={open}
-                className="w-full justify-between"
+                className="w-full justify-between h-12 text-left"
               >
                 {selectedCustomer
                   ? selectedCustomer.name
@@ -129,7 +129,7 @@ export default function CustomerSelector({ selectedCustomer, onCustomerSelect }:
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-full p-0">
+            <PopoverContent align="start" side="bottom" sideOffset={8} className="min-w-[14rem] w-[min(24rem,calc(100vw-2rem))] sm:w-[24rem] max-h-80 overflow-auto p-0">
               <Command>
                 <CommandInput placeholder="Search customers..." />
                 <CommandEmpty>No customer found.</CommandEmpty>
@@ -170,19 +170,18 @@ export default function CustomerSelector({ selectedCustomer, onCustomerSelect }:
 
         {/* Selected Customer Info */}
         {selectedCustomer && (
-          <div className="p-3 bg-muted rounded-lg">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="font-medium">{selectedCustomer.name}</p>
-                <p className="text-sm text-muted-foreground">{selectedCustomer.phone}</p>
-                {selectedCustomer.email && (
-                  <p className="text-sm text-muted-foreground">{selectedCustomer.email}</p>
-                )}
+          <div className="p-4 bg-muted rounded-lg">
+            <div className="flex items-center justify-between gap-4">
+              <div className="font-medium text-base leading-6">{selectedCustomer.name}</div>
+              <div className="flex-shrink-0 whitespace-nowrap text-sm">
+                Purchases: <span className="font-semibold">{selectedCustomer.totalPurchases}</span>
               </div>
-              <div className="text-right">
-                <p className="text-sm text-muted-foreground">Total Purchases</p>
-                <p className="font-medium">{selectedCustomer.totalPurchases}</p>
-              </div>
+            </div>
+            <div className="mt-1 text-sm text-muted-foreground break-words">
+              {selectedCustomer.phone}
+              {selectedCustomer.email && (
+                <span>{` • ${selectedCustomer.email}`}</span>
+              )}
             </div>
           </div>
         )}

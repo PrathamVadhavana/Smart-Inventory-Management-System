@@ -23,6 +23,7 @@ import {
     Bell,
     Search,
 } from "lucide-react";
+import { useProducts, useCustomers, useOrders } from "@/hooks/useSupabase";
 
 interface DashboardLayoutProps {
     children: ReactNode;
@@ -47,6 +48,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const location = useLocation();
     const navigate = useNavigate();
     const { signOut, user } = useAuth();
+    const { products } = useProducts();
+    const { customers } = useCustomers();
+    const { orders } = useOrders();
 
     // Load notifications from Supabase
     useEffect(() => {
@@ -60,7 +64,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         }
     }, []);
 
-    // Global search functionality
+    // Global search functionality (uses live Supabase data with safe fallbacks)
     const performGlobalSearch = (term: string) => {
         if (!term.trim()) {
             setSearchResults([]);
@@ -72,10 +76,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         const searchLower = term.toLowerCase();
 
         try {
-            // Search products
-            const productsRaw = localStorage.getItem('dashboard_products');
-            const products = productsRaw ? JSON.parse(productsRaw) : [];
-            products.forEach((product: any) => {
+            // Prefer live products from Supabase; fallback to localStorage if empty
+            const productSource: any[] = (products && products.length > 0)
+                ? products
+                : (() => {
+                    const raw = localStorage.getItem('dashboard_products');
+                    return raw ? JSON.parse(raw) : [];
+                })();
+
+            productSource.forEach((product: any) => {
                 if (
                     product.name?.toLowerCase().includes(searchLower) ||
                     product.sku?.toLowerCase().includes(searchLower) ||
@@ -85,17 +94,22 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     results.push({
                         type: 'product',
                         title: product.name,
-                        subtitle: `${product.category} • ${product.sku}`,
+                        subtitle: `${product.category || 'Uncategorized'} • ${product.sku || ''}`,
                         href: '/dashboard/inventory',
                         icon: Package
                     });
                 }
             });
 
-            // Search customers
-            const customersRaw = localStorage.getItem('app_customers');
-            const customers = customersRaw ? JSON.parse(customersRaw) : [];
-            customers.forEach((customer: any) => {
+            // Customers from Supabase; fallback to localStorage
+            const customerSource: any[] = (customers && customers.length > 0)
+                ? customers
+                : (() => {
+                    const raw = localStorage.getItem('app_customers');
+                    return raw ? JSON.parse(raw) : [];
+                })();
+
+            customerSource.forEach((customer: any) => {
                 if (
                     customer.name?.toLowerCase().includes(searchLower) ||
                     customer.phone?.includes(term) ||
@@ -104,26 +118,32 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     results.push({
                         type: 'customer',
                         title: customer.name,
-                        subtitle: `${customer.phone} • ${customer.email || 'No email'}`,
+                        subtitle: `${customer.phone || 'No phone'} • ${customer.email || 'No email'}`,
                         href: '/dashboard/customers',
                         icon: Users
                     });
                 }
             });
 
-            // Search bills
-            const ordersRaw = localStorage.getItem('pos_orders');
-            const orders = ordersRaw ? JSON.parse(ordersRaw) : [];
-            orders.forEach((order: any) => {
+            // Orders/Bills from Supabase; fallback to localStorage
+            const orderSource: any[] = (orders && orders.length > 0)
+                ? orders
+                : (() => {
+                    const raw = localStorage.getItem('pos_orders');
+                    return raw ? JSON.parse(raw) : [];
+                })();
+
+            orderSource.forEach((order: any) => {
                 const billNumber = `INV-${order.id}`;
                 if (
                     billNumber.includes(term) ||
-                    order.customer?.name?.toLowerCase().includes(searchLower)
+                    order.customer?.name?.toLowerCase().includes(searchLower) ||
+                    order.customers?.name?.toLowerCase?.().includes(searchLower)
                 ) {
                     results.push({
                         type: 'bill',
                         title: billNumber,
-                        subtitle: `${order.customer?.name || 'Guest'} • ₹${order.total?.toLocaleString() || '0'}`,
+                        subtitle: `${order.customer?.name || order.customers?.name || 'Guest'} • ₹${Number(order.total || 0).toLocaleString()}`,
                         href: '/dashboard/bills',
                         icon: FileText
                     });

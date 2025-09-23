@@ -159,22 +159,35 @@ export default function ProductSearchDialog({
   const isDialogOpen = open !== undefined ? open : dialogOpen;
   const setIsDialogOpen = onOpenChange || setDialogOpen;
 
-  // Load products from Supabase and build dynamic filters
+  // Load products (prefer Supabase; fallback to localStorage or mock) and build dynamic filters
   useEffect(() => {
     try {
-      const mapped: Product[] = products.map((p: any, idx: number) => ({
-        id: String(p.id ?? `supabase-${idx}`),
+      const sourceFromSupabase = Array.isArray(products) && products.length > 0 ? products : null;
+      const sourceFromLocal = (() => {
+        try {
+          const raw = localStorage.getItem('dashboard_products');
+          return raw ? JSON.parse(raw) : null;
+        } catch {
+          return null;
+        }
+      })();
+
+      const source: any[] = sourceFromSupabase || sourceFromLocal || mockProducts;
+
+      const mapped: Product[] = source.map((p: any, idx: number) => ({
+        id: String(p.id ?? p.barcode ?? `p-${idx}`),
         name: p.name || '',
         sku: p.sku || '',
         barcode: p.barcode || '',
         category: p.category || 'Uncategorized',
         brand: p.brand || 'Unknown',
-        price: Number(p.unit_price || 0),
-        stock: Number(p.current_stock || 0),
-        image: p.images?.[0],
+        price: Number(p.unit_price ?? p.price ?? 0),
+        stock: Number(p.current_stock ?? p.stock ?? 0),
+        image: p.images?.[0] ?? p.image,
         description: p.description || '',
-        status: 'active' as const,
+        status: (p.status as 'active' | 'inactive') || 'active',
       }));
+
       setAllProducts(mapped);
       // Build unique categories/brands
       const cats = Array.from(new Set(['All', ...mapped.map(p => p.category).filter(Boolean)])).slice(0, 200);
@@ -228,10 +241,10 @@ export default function ProductSearchDialog({
 
     return (
       <div
-        className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+        className="border rounded-xl p-4 hover:shadow-md transition-shadow cursor-pointer h-full flex flex-col"
         onClick={() => setSelectedProduct(product)}
       >
-        <div className="space-y-3">
+        <div className="space-y-3 flex-1">
           {/* Product Image */}
           <div className="aspect-square bg-muted rounded-lg flex items-center justify-center">
             {product.image ? (
@@ -257,7 +270,7 @@ export default function ProductSearchDialog({
           {/* Quick Add Button */}
           <Button
             size="sm"
-            className="w-full"
+            className="w-full mt-3"
             onClick={(e) => {
               e.stopPropagation();
               setSelectedProduct(product);
@@ -277,7 +290,7 @@ export default function ProductSearchDialog({
 
     return (
       <div
-        className="flex items-center space-x-4 p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+        className="flex items-center space-x-4 p-4 border rounded-xl hover:shadow-md transition-shadow cursor-pointer"
         onClick={() => setSelectedProduct(product)}
       >
         <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
@@ -328,7 +341,7 @@ export default function ProductSearchDialog({
             {trigger}
           </DialogTrigger>
         )}
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden flex flex-col rounded-2xl border border-slate-200/70 dark:border-slate-700/70 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/70">
           <DialogHeader>
             <DialogTitle className="flex items-center">
               <Search className="w-5 h-5 mr-2" />
@@ -339,7 +352,7 @@ export default function ProductSearchDialog({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-hidden flex flex-col space-y-4">
+          <div className="flex-1 overflow-hidden flex flex-col space-y-4 min-h-0">
             {/* Search and Filters */}
             <div className="space-y-4">
               <div className="flex gap-4">
@@ -347,7 +360,7 @@ export default function ProductSearchDialog({
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     placeholder="Search products by name, SKU, or barcode..."
-                    className="pl-10"
+                    className="pl-10 h-11 rounded-lg"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -418,7 +431,7 @@ export default function ProductSearchDialog({
             </div>
 
             {/* Quick Access Tabs */}
-            <Tabs defaultValue="all" className="flex-1 flex flex-col">
+            <Tabs defaultValue="all" className="flex-1 flex flex-col min-h-0">
               <TabsList>
                 <TabsTrigger value="all">All Products ({filteredProducts.length})</TabsTrigger>
                 <TabsTrigger value="recent">
@@ -431,15 +444,17 @@ export default function ProductSearchDialog({
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="all" className="flex-1 overflow-auto">
+              <TabsContent value="all" className="flex-1 overflow-auto min-h-0 pb-6">
                 {viewMode === "grid" ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pr-1 pb-2">
                     {filteredProducts.map((product) => (
-                      <ProductCard key={product.id} product={product} />
+                      <div key={product.id} className="h-full">
+                        <ProductCard product={product} />
+                      </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-3 pr-1 pb-6">
                     {filteredProducts.map((product) => (
                       <ProductListItem key={product.id} product={product} />
                     ))}
@@ -447,15 +462,17 @@ export default function ProductSearchDialog({
                 )}
               </TabsContent>
 
-              <TabsContent value="recent" className="flex-1 overflow-auto">
+              <TabsContent value="recent" className="flex-1 overflow-auto min-h-0 pb-6">
                 {viewMode === "grid" ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pr-1 pb-2">
                     {recentProducts.map((product) => (
-                      <ProductCard key={product.id} product={product} />
+                      <div key={product.id} className="h-full">
+                        <ProductCard product={product} />
+                      </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-3 pr-1 pb-6">
                     {recentProducts.map((product) => (
                       <ProductListItem key={product.id} product={product} />
                     ))}
@@ -463,15 +480,17 @@ export default function ProductSearchDialog({
                 )}
               </TabsContent>
 
-              <TabsContent value="favorites" className="flex-1 overflow-auto">
+              <TabsContent value="favorites" className="flex-1 overflow-auto min-h-0 pb-6">
                 {viewMode === "grid" ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pr-1 pb-2">
                     {favoriteProductsList.map((product) => (
-                      <ProductCard key={product.id} product={product} />
+                      <div key={product.id} className="h-full">
+                        <ProductCard product={product} />
+                      </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-3 pr-1 pb-6">
                     {favoriteProductsList.map((product) => (
                       <ProductListItem key={product.id} product={product} />
                     ))}
