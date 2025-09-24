@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { supabase, Product, Customer, Order, Activity } from '@/lib/supabase'
+import { useState, useEffect, useCallback } from 'react'
+import { supabase, Product, Customer, Order, Activity, Supplier } from '@/lib/supabase'
 import { useToast } from '@/hooks/use-toast'
 
 // Products hook
@@ -14,7 +14,7 @@ export const useProducts = () => {
       setLoading(true)
       const { data, error } = await supabase
         .from('products')
-        .select('*')
+        .select(`*,suppliers ( name )`)
         .order('created_at', { ascending: false })
 
       if (error) throw error
@@ -40,7 +40,6 @@ export const useProducts = () => {
         .single()
 
       if (error) throw error
-      
       setProducts(prev => [data, ...prev])
       toast({
         title: "Success",
@@ -68,7 +67,6 @@ export const useProducts = () => {
         .single()
 
       if (error) throw error
-      
       setProducts(prev => prev.map(p => p.id === id ? data : p))
       toast({
         title: "Success",
@@ -94,7 +92,6 @@ export const useProducts = () => {
         .eq('id', id)
 
       if (error) throw error
-      
       setProducts(prev => prev.filter(p => p.id !== id))
       toast({
         title: "Success",
@@ -124,6 +121,122 @@ export const useProducts = () => {
     updateProduct,
     deleteProduct,
   }
+}
+
+// Suppliers hook
+export function useSuppliers() {
+  const { toast } = useToast();
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchSuppliers = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("suppliers")
+      .select("*")
+      .order("name", { ascending: true });
+
+    if (error) {
+      console.error("Error fetching suppliers:", error);
+      toast({
+        title: "Error",
+        description: "Could not fetch suppliers.",
+        variant: "destructive",
+      });
+    } else {
+      setSuppliers(data || []);
+    }
+    setLoading(false);
+  }, [toast]);
+
+  useEffect(() => {
+    fetchSuppliers();
+  }, [fetchSuppliers]);
+
+  const addSupplier = async (supplierData: Omit<Supplier, "id" | "created_at">) => {
+    const { data, error } = await supabase
+      .from("suppliers")
+      .insert([supplierData])
+      .select()
+      .single(); // .single() gets the new object back
+
+    if (error) {
+      console.error("Error adding supplier:", error);
+      toast({
+        title: "Error",
+        description: "Could not add the new supplier.",
+        variant: "destructive",
+      });
+      return null;
+    }
+
+    setSuppliers((currentSuppliers) => [...currentSuppliers, data]);
+    toast({
+      title: "Success",
+      description: "Supplier added successfully.",
+    });
+    return data;
+  };
+
+  const updateSupplier = async (id: string, supplierData: Partial<Supplier>) => {
+    const { data, error } = await supabase
+      .from("suppliers")
+      .update(supplierData)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating supplier:", error);
+      toast({
+        title: "Error",
+        description: "Could not update the supplier.",
+        variant: "destructive",
+      });
+      return null;
+    }
+
+    setSuppliers((currentSuppliers) =>
+      currentSuppliers.map((s) => (s.id === id ? data : s))
+    );
+    toast({
+      title: "Success",
+      description: "Supplier updated successfully.",
+    });
+    return data;
+  };
+
+  const deleteSupplier = async (id: string) => {
+    const { error } = await supabase.from("suppliers").delete().eq("id", id);
+
+    if (error) {
+      console.error("Error deleting supplier:", error);
+      toast({
+        title: "Error",
+        description: "Could not delete the supplier.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    setSuppliers((currentSuppliers) =>
+      currentSuppliers.filter((s) => s.id !== id)
+    );
+    toast({
+      title: "Success",
+      description: "Supplier deleted successfully.",
+    });
+    return true;
+  };
+
+  return {
+    suppliers,
+    loading,
+    fetchSuppliers,
+    addSupplier,
+    updateSupplier,
+    deleteSupplier,
+  };
 }
 
 // Customers hook
@@ -174,7 +287,6 @@ export const useCustomers = () => {
         .single()
 
       if (error) throw error
-      
       setCustomers(prev => [data, ...prev])
       toast({
         title: "Success",
@@ -202,7 +314,6 @@ export const useCustomers = () => {
         .single()
 
       if (error) throw error
-      
       setCustomers(prev => prev.map(c => c.id === id ? data : c))
       toast({
         title: "Success",
@@ -228,7 +339,6 @@ export const useCustomers = () => {
         .eq('id', id)
 
       if (error) throw error
-      
       setCustomers(prev => prev.filter(c => c.id !== id))
       toast({
         title: "Success",
@@ -312,7 +422,6 @@ export const useOrders = () => {
         .single()
 
       if (error) throw error
-      
       setOrders(prev => [data, ...prev])
       toast({
         title: "Success",
@@ -376,7 +485,6 @@ export const useActivities = () => {
         .single()
 
       if (error) throw error
-      
       setActivities(prev => [data, ...prev.slice(0, 49)]) // Keep only latest 50
       return data
     } catch (err) {

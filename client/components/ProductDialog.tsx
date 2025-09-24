@@ -20,14 +20,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus, Upload } from "lucide-react";
+import { Supplier } from "@/lib/supabase";
 
 interface ProductDialogProps {
   trigger?: React.ReactNode;
   product?: any;
   onSave?: (product: any) => void;
+  suppliers: Supplier[];
 }
 
-export default function ProductDialog({ trigger, product, onSave }: ProductDialogProps) {
+export default function ProductDialog({ trigger, product, onSave, suppliers }: ProductDialogProps) {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: product?.name || "",
@@ -39,7 +41,7 @@ export default function ProductDialog({ trigger, product, onSave }: ProductDialo
     minStock: product?.minStock || "",
     costPrice: product?.costPrice || "",
     sellingPrice: product?.sellingPrice || "",
-    supplier: product?.supplier || "",
+    supplierId: product?.supplier_id || "",
   });
 
   const handleSave = () => {
@@ -57,7 +59,7 @@ export default function ProductDialog({ trigger, product, onSave }: ProductDialo
         minStock: "",
         costPrice: "",
         sellingPrice: "",
-        supplier: "",
+        supplierId: "",
       });
     }
   };
@@ -73,16 +75,7 @@ export default function ProductDialog({ trigger, product, onSave }: ProductDialo
     "Gaming",
   ];
 
-  const suppliers = [
-    "Apple Inc.",
-    "Samsung",
-    "Dell Technologies",
-    "HP Inc.",
-    "Lenovo",
-    "Sony",
-    "LG Electronics",
-    "Microsoft",
-  ];
+
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -98,14 +91,13 @@ export default function ProductDialog({ trigger, product, onSave }: ProductDialo
         <DialogHeader>
           <DialogTitle>{product ? "Edit Product" : "Add New Product"}</DialogTitle>
           <DialogDescription>
-            {product 
-              ? "Update the product information below." 
+            {product
+              ? "Update the product information below."
               : "Fill in the product details to add it to your inventory."
             }
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-6 py-4">
           {/* Product Images */}
           <div className="space-y-2">
             <Label>Product Images</Label>
@@ -133,8 +125,8 @@ export default function ProductDialog({ trigger, product, onSave }: ProductDialo
             </div>
             <div className="space-y-2">
               <Label htmlFor="category">Category *</Label>
-              <Select 
-                value={formData.category} 
+              <Select
+                value={formData.category}
                 onValueChange={(value) => setFormData({ ...formData, category: value })}
               >
                 <SelectTrigger>
@@ -234,32 +226,35 @@ export default function ProductDialog({ trigger, product, onSave }: ProductDialo
           {/* Supplier */}
           <div className="space-y-2">
             <Label htmlFor="supplier">Supplier</Label>
-            <Select 
-              value={formData.supplier} 
-              onValueChange={(value) => setFormData({ ...formData, supplier: value })}
+            <Select
+              // Use the supplierId from state
+              value={formData.supplierId}
+              // Update the supplierId in state on change
+              onValueChange={(value) => setFormData({ ...formData, supplierId: value })}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select supplier" />
+                <SelectValue placeholder="Select a supplier" />
               </SelectTrigger>
               <SelectContent>
+                {/* Map over the suppliers passed in via props */}
                 {suppliers.map((supplier) => (
-                  <SelectItem key={supplier} value={supplier}>
-                    {supplier}
+                  // Use the supplier's ID as the key and value
+                  <SelectItem key={supplier.id} value={supplier.id}>
+                    {supplier.name} {/* Display the supplier's name */}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-        </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave}>
-            {product ? "Update Product" : "Add Product"}
-          </Button>
-        </DialogFooter>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave}>
+              {product ? "Update Product" : "Add Product"}
+            </Button>
+          </DialogFooter>
       </DialogContent>
     </Dialog>
   );

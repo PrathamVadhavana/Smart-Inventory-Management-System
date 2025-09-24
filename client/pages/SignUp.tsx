@@ -1,19 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  Eye,
-  EyeOff,
-  Mail,
-  Lock,
-  User,
-  Package,
-  ArrowRight,
-  Moon,
-  Sun,
-  Chrome,
-  Check,
-  X,
-} from "lucide-react";
+  Eye, EyeOff, Mail, Lock, User, Package,
+  ArrowRight, Moon, Sun, Chrome, Check, X
+} from 'lucide-react';
 import { useAuth } from "@/contexts/AuthContext";
 import { SignUpSchema } from "@shared/api";
 import { z } from "zod";

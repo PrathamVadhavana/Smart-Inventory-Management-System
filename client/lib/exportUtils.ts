@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 // Types for export data
 export interface ExportColumn {
@@ -118,95 +119,69 @@ export const exportToPDF = (options: ExportOptions) => {
   const { filename, columns, data, title, includeTimestamp = true } = options;
 
   const doc = new jsPDF();
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  let yPosition = 20;
 
-  // Add title
+  // Add a title to the document
   if (title) {
-    doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text(title, pageWidth / 2, yPosition, { align: 'center' });
-    yPosition += 15;
+    doc.setFontSize(18);
+    doc.text(title, 14, 22);
   }
-
-  // Add export date
+  
+  // Add generated-on date
   doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth - 20, yPosition, { align: 'right' });
-  yPosition += 15;
+  doc.text(
+    `Generated on: ${new Date().toLocaleDateString('en-IN')}`,
+    14,
+    30
+  );
 
-  // Calculate column widths
-  const availableWidth = pageWidth - 40;
-  const defaultColWidth = availableWidth / columns.length;
-
-  // Table headers
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'bold');
-
-  let xPosition = 20;
-  columns.forEach((col, index) => {
-    const colWidth = col.width || defaultColWidth;
-    doc.text(col.header, xPosition, yPosition);
-    xPosition += colWidth;
+  // Use autoTable to generate the table
+  autoTable(doc, {
+    startY: 35, // Position the table after the title and date
+    head: [columns.map((col) => col.header)], // Table headers
+    body: data.map((item) =>
+      // Map each data object to an array of values for the row
+      columns.map((col) => {
+        const value = item?.[col.key];
+        // Use the formatter if it exists, otherwise convert to string
+        return col.formatter ? col.formatter(value) : String(value ?? '');
+      })
+    ),
+    theme: 'grid', // 'striped', 'grid', or 'plain'
+    headStyles: {
+      fillColor: [22, 160, 133], // A nice header color
+      textColor: [255, 255, 255],
+    },
+    styles: {
+      fontSize: 9,
+      cellPadding: 2,
+    },
   });
 
-  // Draw header line
-  doc.setLineWidth(0.5);
-  doc.line(20, yPosition + 2, pageWidth - 20, yPosition + 2);
-  yPosition += 10;
-
-  // Table data
-  doc.setFont('helvetica', 'normal');
-
-  data.forEach((item, rowIndex) => {
-    // Check if we need a new page
-    if (yPosition > pageHeight - 30) {
-      doc.addPage();
-      yPosition = 20;
-    }
-
-    xPosition = 20;
-    columns.forEach((col) => {
-      const colWidth = col.width || defaultColWidth;
-      const value = item[col.key];
-      const displayValue = col.formatter ? col.formatter(value) : String(value || '');
-
-      // Truncate text if too long
-      const maxChars = Math.floor(colWidth / 2);
-      const truncatedValue = displayValue.length > maxChars
-        ? displayValue.substring(0, maxChars - 3) + '...'
-        : displayValue;
-
-      doc.text(truncatedValue, xPosition, yPosition);
-      xPosition += colWidth;
-    });
-
-    yPosition += 8;
-  });
-
-  // Save the PDF
   const finalFilename = includeTimestamp
     ? `${filename}_${new Date().toISOString().split('T')[0]}.pdf`
     : `${filename}.pdf`;
 
-  try {
-    doc.save(finalFilename);
-  } catch {
-    // Fallback: save via Blob if direct save fails
-    const blob = doc.output('blob');
-    saveAs(blob as unknown as Blob, finalFilename);
-  }
+  doc.save(finalFilename);
 };
 
 // Utility function to format currency
-export const formatCurrency = (amount: number): string => {
-  return `₹${amount.toLocaleString()}`;
+export const formatCurrency = (amount: number | null | undefined): string => {
+  // Check for null or undefined, and default to 0 if the value is not a valid number.
+  const validAmount = typeof amount === 'number' ? amount : 0;
+  return `₹${validAmount.toLocaleString('en-IN')}`;
 };
 
 // Utility function to format date
-export const formatDate = (date: string | Date): string => {
+export const formatDate = (date: string | Date | null | undefined): string => {
+  // Return a placeholder if the date is missing.
+  if (!date) {
+    return 'N/A';
+  }
   const d = new Date(date);
+  // Check for an invalid date and return a placeholder.
+  if (isNaN(d.getTime())) {
+    return 'Invalid Date';
+  }
   return d.toLocaleDateString('en-IN');
 };
 

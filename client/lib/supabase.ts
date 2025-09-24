@@ -27,6 +27,18 @@ export interface Product {
   hsn_code?: string
   created_at: string
   updated_at: string
+  supplier_id?: string | null;
+  supplier_name?: string | null;
+}
+
+export interface Supplier {
+  id: string;
+  name: string;
+  contact_person?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  created_at: string;
 }
 
 export interface Customer {

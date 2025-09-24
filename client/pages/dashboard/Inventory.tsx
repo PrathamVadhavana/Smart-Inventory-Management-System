@@ -16,7 +16,7 @@ import AdvancedFilter, { productFilters, FilterValue } from "@/components/Advanc
 import BulkOperations from "@/components/BulkOperations";
 import { Checkbox } from "@/components/ui/checkbox";
 import { productColumns } from "@/lib/exportUtils";
-import { useProducts } from "@/hooks/useSupabase";
+import { useProducts, useSuppliers } from "@/hooks/useSupabase";
 import {
   Plus,
   Search,
@@ -34,9 +34,29 @@ import {
   BarChart3,
   Grid3X3,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Product } from "@/lib/supabase";
 
 export default function Inventory() {
   const { products, addProduct, updateProduct, deleteProduct } = useProducts();
+  const { suppliers } = useSuppliers();
+  const enrichedProducts = useMemo(() => {
+    // Create a fast lookup map of supplier IDs to names
+    const supplierMap = new Map(suppliers.map(s => [s.id, s.name]));
+
+    // Match each product's supplier_id to the map to get the name
+    return products.map(product => ({
+      ...product,
+      // Add a new property 'supplierName' to each product
+      supplierName: supplierMap.get(product.supplier_id) || 'N/A',
+    }));
+  }, [products, suppliers]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterValues, setFilterValues] = useState<FilterValue>({});
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
@@ -53,6 +73,8 @@ export default function Inventory() {
 
   // View toggle state
   const [activeView, setActiveView] = useState<'table' | 'insights'>('table');
+  const [viewedProduct, setViewedProduct] = useState<Product | null>(null);
+  const [isDetailViewOpen, setIsDetailViewOpen] = useState(false);
 
   // Helper: format currency
   const formatCurrency = (amount: number) => {
@@ -83,12 +105,12 @@ export default function Inventory() {
 
   // Load products from localStorage
   useEffect(() => {
-    setSummaryData(calculateSummary(products));
-  }, [products]);
+    setSummaryData(calculateSummary(enrichedProducts));
+  }, [enrichedProducts]);
 
   // Filtered products (memoized)
   const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
+    return enrichedProducts.filter((product) => {
       // --- 1. Text search ---
       const matchesSearch =
         (product.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
@@ -108,9 +130,9 @@ export default function Inventory() {
 
           case 'supplier':
             if (Array.isArray(value)) {
-              return value.some(v => (product.supplier || '').toLowerCase().includes(v.toLowerCase()));
+              return value.some(v => (product.supplierName || '').toLowerCase().includes(v.toLowerCase()));
             }
-            return (product.supplier || '').toLowerCase().includes(value.toLowerCase());
+            return (product.supplierName || '').toLowerCase().includes(value.toLowerCase());
 
           case 'priceRange':
             const price = parseFloat((product.unit_price || '0').toString().replace(/₹|,/g, ''));
@@ -127,11 +149,11 @@ export default function Inventory() {
             return true;
 
           case 'trackInventory':
-            return value === (product.trackInventory ?? false);
+            return value === (product.track_inventory ?? false);
 
           case 'dateAdded':
             if (!value.from && !value.to) return true;
-            const addedDate = new Date(product.lastUpdated);
+            const addedDate = new Date(product.updated_at);
             if (value.from && addedDate < new Date(value.from)) return false;
             if (value.to && addedDate > new Date(value.to)) return false;
             return true;
@@ -143,7 +165,7 @@ export default function Inventory() {
 
       return matchesSearch && matchesFilters;
     });
-  }, [products, searchTerm, filterValues]);
+  }, [enrichedProducts, searchTerm, filterValues]);
 
 
   const getStockStatus = (current: number, min: number) => {
@@ -152,25 +174,33 @@ export default function Inventory() {
     return { status: "In Stock", color: "text-green-600 bg-green-50" };
   };
 
-  const handleAddProduct = async (product: any) => {
+  const handleSaveProduct = async (productData: any, productId?: string) => {
     try {
-      const productData = {
-        name: product.name,
-        description: product.description || '',
-        sku: product.sku || `SKU-${Date.now()}`,
-        barcode: product.barcode || '',
-        category: product.category || 'Uncategorized',
-        unit_price: parseFloat(product.unitPrice || product.price || '0'),
-        current_stock: parseInt(product.currentStock || product.stock || '0'),
-        min_stock: parseInt(product.minStock || '0'),
-        track_inventory: product.trackInventory !== false,
-        images: product.images || [],
-        hsn_code: product.hsnCode || '8517'
+      // Prepare the data for saving
+      const dataToSave = {
+        name: productData.name,
+        description: productData.description || '',
+        sku: productData.sku || `SKU-${Date.now()}`,
+        barcode: productData.barcode || '',
+        category: productData.category || 'Uncategorized',
+        unit_price: parseFloat(productData.unitPrice || productData.price || '0'),
+        current_stock: parseInt(productData.currentStock || productData.stock || '0'),
+        min_stock: parseInt(productData.minStock || '0'),
+        track_inventory: productData.trackInventory !== false,
+        images: productData.images || [],
+        hsn_code: productData.hsnCode || '8517',
+        supplier_id: productData.supplierId || null
       };
 
-      await addProduct(productData);
+      // If a productId is provided, it's an update. Otherwise, it's a new product.
+      if (productId) {
+        await updateProduct(productId, dataToSave);
+      } else {
+        await addProduct(dataToSave);
+      }
     } catch (error) {
-      console.error('Error adding product:', error);
+      console.error('Error saving product:', error);
+      // The toast notification is already handled in your hook, so no need to add one here.
     }
   };
 
@@ -225,6 +255,26 @@ export default function Inventory() {
     setCurrentPage(1);
   }, [searchTerm, filterValues]);
 
+  const formatDate = (dateString: string) => {
+    // Return a placeholder if the date is invalid or missing
+    if (!dateString) {
+      return "N/A";
+    }
+
+    const date = new Date(dateString);
+
+    // Check for an invalid date
+    if (isNaN(date.getTime())) {
+      return "Invalid Date";
+    }
+
+    return date.toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -272,7 +322,7 @@ export default function Inventory() {
                 Add Product
               </Button>
             }
-            onSave={handleAddProduct}
+            onSave={(productData) => handleSaveProduct(productData)}
           />
         </div>
       </div>
@@ -437,9 +487,6 @@ export default function Inventory() {
                               </div>
                               <div>
                                 <p className="font-medium">{product.name}</p>
-                                {product.brand && (
-                                  <p className="text-sm text-muted-foreground">{product.brand}</p>
-                                )}
                               </div>
                             </div>
                           </TableCell>
@@ -463,11 +510,18 @@ export default function Inventory() {
                               ? `₹${Number(product.unit_price.toString().replace(/₹|,/g, '')).toLocaleString()}`
                               : '₹0'}
                           </TableCell>
-                          <TableCell>{product.supplier}</TableCell>
-                          <TableCell>{product.lastUpdated}</TableCell>
+                          <TableCell>{product.supplierName}</TableCell>
+                          <TableCell>{formatDate(product.updated_at)}</TableCell>
                           <TableCell>
                             <div className="flex space-x-2">
-                              <Button variant="ghost" size="sm">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setViewedProduct(product);
+                                  setIsDetailViewOpen(true);
+                                }}
+                              >
                                 <Eye className="w-4 h-4" />
                               </Button>
                               <EnhancedProductDialog
@@ -477,7 +531,7 @@ export default function Inventory() {
                                     <Edit className="w-4 h-4" />
                                   </Button>
                                 }
-                                onSave={handleAddProduct}
+                                onSave={(productData) => handleSaveProduct(productData, product.id)}
                               />
                               <Button
                                 variant="ghost"
@@ -658,8 +712,8 @@ export default function Inventory() {
               <div className="space-y-3">
                 {(() => {
                   const supplierCount: Record<string, number> = {};
-                  products.forEach(p => {
-                    const supplier = p.supplier || 'Unknown';
+                  enrichedProducts.forEach(p => {
+                    const supplier = p.supplierName || 'Unknown';
                     supplierCount[supplier] = (supplierCount[supplier] || 0) + 1;
                   });
                   return Object.entries(supplierCount).map(([supplier, count]) => (
@@ -681,6 +735,40 @@ export default function Inventory() {
             </CardContent>
           </Card>
         </div>
+      )}
+      {viewedProduct && (
+        <Dialog open={isDetailViewOpen} onOpenChange={setIsDetailViewOpen}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>{viewedProduct.name}</DialogTitle>
+              <DialogDescription>
+                SKU: {viewedProduct.sku}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid grid-cols-2 gap-4 py-4 text-sm">
+              <div>
+                <p className="font-medium text-muted-foreground">Category</p>
+                <p>{viewedProduct.category}</p>
+              </div>
+              <div>
+                <p className="font-medium text-muted-foreground">Supplier</p>
+                <p>{viewedProduct.supplier_name}</p> {/* Using enriched data */}
+              </div>
+              <div>
+                <p className="font-medium text-muted-foreground">Unit Price</p>
+                <p>{formatCurrency(viewedProduct.unit_price)}</p>
+              </div>
+              <div>
+                <p className="font-medium text-muted-foreground">Current Stock</p>
+                <p>{viewedProduct.current_stock} units</p>
+              </div>
+              <div className="col-span-2">
+                <p className="font-medium text-muted-foreground">Description</p>
+                <p>{viewedProduct.description || 'No description available.'}</p>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

@@ -95,7 +95,7 @@ export default function Customers() {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage] = useState(3);
 
   // View toggle state
   const [activeView, setActiveView] = useState<"table" | "insights">("table");
@@ -283,9 +283,10 @@ export default function Customers() {
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return `₹${amount.toLocaleString()}`;
-  };
+  const formatCurrency = (amount: number | null | undefined) => {
+    const validAmount = typeof amount === 'number' ? amount : 0;
+    return `₹${validAmount.toLocaleString('en-IN')}`;
+  }
 
   return (
     <div className="space-y-6">
