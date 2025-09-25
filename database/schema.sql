@@ -1,6 +1,18 @@
 -- Enable necessary extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Create suppliers table
+CREATE TABLE IF NOT EXISTS suppliers (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    contact_person VARCHAR(255),
+    phone VARCHAR(20),
+    email VARCHAR(255),
+    address TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Create products table
 CREATE TABLE IF NOT EXISTS products (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -15,6 +27,7 @@ CREATE TABLE IF NOT EXISTS products (
     track_inventory BOOLEAN DEFAULT true,
     images TEXT[], -- Array of image URLs
     hsn_code VARCHAR(20),
+    supplier_id UUID REFERENCES suppliers(id) ON DELETE SET NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -68,6 +81,10 @@ CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
 CREATE INDEX IF NOT EXISTS idx_products_sku ON products(sku);
 CREATE INDEX IF NOT EXISTS idx_products_barcode ON products(barcode);
 CREATE INDEX IF NOT EXISTS idx_products_low_stock ON products(current_stock, min_stock) WHERE track_inventory = true;
+CREATE INDEX IF NOT EXISTS idx_products_supplier ON products(supplier_id);
+
+CREATE INDEX IF NOT EXISTS idx_suppliers_name ON suppliers(name);
+CREATE INDEX IF NOT EXISTS idx_suppliers_email ON suppliers(email);
 
 CREATE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone);
 CREATE INDEX IF NOT EXISTS idx_customers_email ON customers(email);
@@ -90,13 +107,20 @@ END;
 $$ language 'plpgsql';
 
 -- Create triggers for updated_at
+DROP TRIGGER IF EXISTS update_products_updated_at ON products;
 CREATE TRIGGER update_products_updated_at BEFORE UPDATE ON products
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_customers_updated_at ON customers;
 CREATE TRIGGER update_customers_updated_at BEFORE UPDATE ON customers
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_orders_updated_at ON orders;
 CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON orders
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_suppliers_updated_at ON suppliers;
+CREATE TRIGGER update_suppliers_updated_at BEFORE UPDATE ON suppliers
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Create function to update customer stats after order
@@ -117,6 +141,7 @@ END;
 $$ language 'plpgsql';
 
 -- Create trigger to update customer stats
+DROP TRIGGER IF EXISTS update_customer_stats_trigger ON orders;
 CREATE TRIGGER update_customer_stats_trigger 
     AFTER INSERT ON orders
     FOR EACH ROW 
@@ -175,25 +200,109 @@ END;
 $$ language 'plpgsql';
 
 -- Create triggers for activity logging
+DROP TRIGGER IF EXISTS log_order_activity ON orders;
 CREATE TRIGGER log_order_activity 
     AFTER INSERT ON orders
     FOR EACH ROW EXECUTE FUNCTION log_activity();
 
+DROP TRIGGER IF EXISTS log_product_activity ON products;
 CREATE TRIGGER log_product_activity 
     AFTER INSERT OR UPDATE ON products
     FOR EACH ROW EXECUTE FUNCTION log_activity();
 
+DROP TRIGGER IF EXISTS log_customer_activity ON customers;
 CREATE TRIGGER log_customer_activity 
     AFTER INSERT ON customers
     FOR EACH ROW EXECUTE FUNCTION log_activity();
 
--- Insert some sample data
-INSERT INTO products (name, description, sku, barcode, category, unit_price, current_stock, min_stock, track_inventory, hsn_code) VALUES
-('iPhone 15 Pro', 'Latest iPhone with advanced features', 'IPH15PRO', '1234567890123', 'Electronics', 99999.00, 10, 5, true, '8517'),
-('Samsung Galaxy S24', 'Premium Android smartphone', 'SGS24', '1234567890124', 'Electronics', 89999.00, 8, 3, true, '8517'),
-('MacBook Pro M3', 'Professional laptop for creators', 'MBPM3', '1234567890125', 'Laptops', 199999.00, 5, 2, true, '8471'),
-('AirPods Pro', 'Wireless earbuds with noise cancellation', 'APP', '1234567890126', 'Audio', 24999.00, 15, 5, true, '8518'),
-('Magic Mouse', 'Wireless mouse for Mac', 'MM', '1234567890127', 'Accessories', 8999.00, 20, 10, true, '8471')
+-- Insert sample suppliers first
+INSERT INTO suppliers (name, contact_person, phone, email, address) VALUES
+('Apple Inc.', 'Tim Cook', '+1-408-996-1010', 'sales@apple.com', 'One Apple Park Way, Cupertino, CA 95014, USA'),
+('Samsung Electronics', 'Jong-Hee Han', '+82-2-2255-0114', 'sales@samsung.com', '129 Samsung-ro, Yeongtong-gu, Suwon-si, Gyeonggi-do, South Korea'),
+('Tech Distributors Ltd.', 'Raj Kumar', '+91 98765 12345', 'sales@techdist.com', '123 Tech Park, Bangalore, Karnataka 560001'),
+('Electronics Wholesale Co.', 'Priya Sharma', '+91 98765 67890', 'info@ewc.com', '456 Electronics Market, Delhi 110001'),
+('Global Gadgets Pvt Ltd', 'Amit Patel', '+91 98765 11111', 'contact@globalgadgets.com', '789 Industrial Area, Mumbai, Maharashtra 400001')
+ON CONFLICT DO NOTHING;
+
+-- Insert sample products with supplier references
+INSERT INTO products (name, description, sku, barcode, category, unit_price, current_stock, min_stock, track_inventory, hsn_code, supplier_id) 
+SELECT 
+    'iPhone 15 Pro', 
+    'Latest iPhone with advanced features', 
+    'IPH15PRO', 
+    '1234567890123', 
+    'Electronics', 
+    99999.00, 
+    10, 
+    5, 
+    true, 
+    '8517',
+    s.id
+FROM suppliers s WHERE s.name = 'Apple Inc.'
+ON CONFLICT (sku) DO NOTHING;
+
+INSERT INTO products (name, description, sku, barcode, category, unit_price, current_stock, min_stock, track_inventory, hsn_code, supplier_id)
+SELECT 
+    'Samsung Galaxy S24', 
+    'Premium Android smartphone', 
+    'SGS24', 
+    '1234567890124', 
+    'Electronics', 
+    89999.00, 
+    8, 
+    3, 
+    true, 
+    '8517',
+    s.id
+FROM suppliers s WHERE s.name = 'Samsung Electronics'
+ON CONFLICT (sku) DO NOTHING;
+
+INSERT INTO products (name, description, sku, barcode, category, unit_price, current_stock, min_stock, track_inventory, hsn_code, supplier_id)
+SELECT 
+    'MacBook Pro M3', 
+    'Professional laptop for creators', 
+    'MBPM3', 
+    '1234567890125', 
+    'Laptops', 
+    199999.00, 
+    5, 
+    2, 
+    true, 
+    '8471',
+    s.id
+FROM suppliers s WHERE s.name = 'Apple Inc.'
+ON CONFLICT (sku) DO NOTHING;
+
+INSERT INTO products (name, description, sku, barcode, category, unit_price, current_stock, min_stock, track_inventory, hsn_code, supplier_id)
+SELECT 
+    'AirPods Pro', 
+    'Wireless earbuds with noise cancellation', 
+    'APP', 
+    '1234567890126', 
+    'Audio', 
+    24999.00, 
+    15, 
+    5, 
+    true, 
+    '8518',
+    s.id
+FROM suppliers s WHERE s.name = 'Apple Inc.'
+ON CONFLICT (sku) DO NOTHING;
+
+INSERT INTO products (name, description, sku, barcode, category, unit_price, current_stock, min_stock, track_inventory, hsn_code, supplier_id)
+SELECT 
+    'Magic Mouse', 
+    'Wireless mouse for Mac', 
+    'MM', 
+    '1234567890127', 
+    'Accessories', 
+    8999.00, 
+    20, 
+    10, 
+    true, 
+    '8471',
+    s.id
+FROM suppliers s WHERE s.name = 'Tech Distributors Ltd.'
 ON CONFLICT (sku) DO NOTHING;
 
 INSERT INTO customers (name, phone, email, address, gst_number) VALUES
@@ -207,10 +316,22 @@ ALTER TABLE products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE activities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE suppliers ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for public access (you can modify these based on your auth requirements)
+DROP POLICY IF EXISTS "Allow all operations on products" ON products;
 CREATE POLICY "Allow all operations on products" ON products FOR ALL USING (true);
+
+DROP POLICY IF EXISTS "Allow all operations on customers" ON customers;
 CREATE POLICY "Allow all operations on customers" ON customers FOR ALL USING (true);
+
+DROP POLICY IF EXISTS "Allow all operations on orders" ON orders;
 CREATE POLICY "Allow all operations on orders" ON orders FOR ALL USING (true);
+
+DROP POLICY IF EXISTS "Allow all operations on activities" ON activities;
 CREATE POLICY "Allow all operations on activities" ON activities FOR ALL USING (true);
 
+DROP POLICY IF EXISTS "Allow all operations on suppliers" ON suppliers;
+CREATE POLICY "Allow all operations on suppliers" ON suppliers FOR ALL USING (true);
+
+.

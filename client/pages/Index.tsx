@@ -1,13 +1,45 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import {
-  Menu, X, ChevronDown, ChevronRight, Star, Shield,
-  BarChart3, Zap, Package, ScanLine, RefreshCw, FileText,
-  Users, Globe, Linkedin, Twitter, Facebook, Mail,
-  ArrowRight, Play, Check, AlertTriangle, TrendingUp,
-  MapPin, Layers, Clock, Award, Eye, Lock, Minus, Plus
-} from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+  Menu,
+  X,
+  ChevronDown,
+  ChevronRight,
+  Star,
+  Shield,
+  BarChart3,
+  Zap,
+  Package,
+  ScanLine,
+  RefreshCw,
+  FileText,
+  Users,
+  Globe,
+  Linkedin,
+  Twitter,
+  Facebook,
+  Mail,
+  ArrowRight,
+  Play,
+  Check,
+  AlertTriangle,
+  TrendingUp,
+  MapPin,
+  Layers,
+  Clock,
+  Award,
+  Eye,
+  Lock,
+  Minus,
+  Plus,
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 // Intersection Observer Hook for scroll animations
 const useIntersectionObserver = (options = {}) => {
@@ -15,12 +47,15 @@ const useIntersectionObserver = (options = {}) => {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        setIsVisible(true);
-        observer.unobserve(entry.target);
-      }
-    }, { threshold: 0.1, ...options });
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.1, ...options },
+    );
 
     const currentRef = ref.current;
     if (currentRef) {
@@ -91,35 +126,78 @@ const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
-    <header className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-background/95 backdrop-blur-sm shadow-sm' : 'bg-background'
-      }`}>
+    <header
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        isScrolled
+          ? "bg-background/95 backdrop-blur-sm shadow-sm"
+          : "bg-background"
+      }`}
+    >
       <nav className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Package className="w-8 h-8 text-accent" />
-            <span className="text-2xl font-heading font-bold text-foreground">InMyStack</span>
+            <span className="text-2xl font-heading font-bold text-foreground">
+              InMyStack
+            </span>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <a href="#features" className="text-foreground hover:text-accent transition-colors">Features</a>
-            <a href="#how-it-works" className="text-foreground hover:text-accent transition-colors">How it Works</a>
-            <a href="#integrations" className="text-foreground hover:text-accent transition-colors">Integrations</a>
-            <a href="#pricing" className="text-foreground hover:text-accent transition-colors">Pricing</a>
-            <a href="#security" className="text-foreground hover:text-accent transition-colors">Security</a>
-            <a href="#faq" className="text-foreground hover:text-accent transition-colors">FAQ</a>
+            <a
+              href="#features"
+              className="text-foreground hover:text-accent transition-colors"
+            >
+              Features
+            </a>
+            <a
+              href="#how-it-works"
+              className="text-foreground hover:text-accent transition-colors"
+            >
+              How it Works
+            </a>
+            <a
+              href="#integrations"
+              className="text-foreground hover:text-accent transition-colors"
+            >
+              Integrations
+            </a>
+            <a
+              href="#pricing"
+              className="text-foreground hover:text-accent transition-colors"
+            >
+              Pricing
+            </a>
+            <a
+              href="#security"
+              className="text-foreground hover:text-accent transition-colors"
+            >
+              Security
+            </a>
+            <a
+              href="#faq"
+              className="text-foreground hover:text-accent transition-colors"
+            >
+              FAQ
+            </a>
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
-            <Link to="/login" className="text-foreground hover:text-accent transition-colors">
+            <Link
+              to="/login"
+              className="text-foreground hover:text-accent transition-colors"
+            >
               Login
             </Link>
-            <Link to="/signup" className="bg-accent text-accent-foreground px-6 py-2 rounded-lg font-medium btn-hover">
+            <Link
+              to="/signup"
+              className="bg-accent text-accent-foreground px-6 py-2 rounded-lg font-medium btn-hover"
+            >
               Start Free
             </Link>
           </div>
@@ -130,7 +208,11 @@ const Header = () => {
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMenuOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
           </button>
         </div>
 
@@ -138,14 +220,52 @@ const Header = () => {
         {isMenuOpen && (
           <div className="md:hidden absolute top-full left-0 right-0 bg-background border-t shadow-lg">
             <div className="flex flex-col space-y-4 p-4">
-              <a href="#features" className="text-foreground hover:text-accent transition-colors">Features</a>
-              <a href="#how-it-works" className="text-foreground hover:text-accent transition-colors">How it Works</a>
-              <a href="#integrations" className="text-foreground hover:text-accent transition-colors">Integrations</a>
-              <a href="#pricing" className="text-foreground hover:text-accent transition-colors">Pricing</a>
-              <a href="#security" className="text-foreground hover:text-accent transition-colors">Security</a>
-              <a href="#faq" className="text-foreground hover:text-accent transition-colors">FAQ</a>
-              <Link to="/login" className="text-foreground hover:text-accent transition-colors">Login</Link>
-              <Link to="/signup" className="bg-accent text-accent-foreground px-6 py-2 rounded-lg font-medium w-full text-center">
+              <a
+                href="#features"
+                className="text-foreground hover:text-accent transition-colors"
+              >
+                Features
+              </a>
+              <a
+                href="#how-it-works"
+                className="text-foreground hover:text-accent transition-colors"
+              >
+                How it Works
+              </a>
+              <a
+                href="#integrations"
+                className="text-foreground hover:text-accent transition-colors"
+              >
+                Integrations
+              </a>
+              <a
+                href="#pricing"
+                className="text-foreground hover:text-accent transition-colors"
+              >
+                Pricing
+              </a>
+              <a
+                href="#security"
+                className="text-foreground hover:text-accent transition-colors"
+              >
+                Security
+              </a>
+              <a
+                href="#faq"
+                className="text-foreground hover:text-accent transition-colors"
+              >
+                FAQ
+              </a>
+              <Link
+                to="/login"
+                className="text-foreground hover:text-accent transition-colors"
+              >
+                Login
+              </Link>
+              <Link
+                to="/signup"
+                className="bg-accent text-accent-foreground px-6 py-2 rounded-lg font-medium w-full text-center"
+              >
                 Start Free
               </Link>
             </div>
@@ -166,23 +286,30 @@ const HeroSection = () => {
       <div
         className="absolute inset-0 opacity-60 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: 'url(https://images.pexels.com/photos/12706241/pexels-photo-12706241.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1280)',
+          backgroundImage:
+            "url(https://images.pexels.com/photos/12706241/pexels-photo-12706241.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1280)",
         }}
       />
       <div className="absolute inset-0 bg-background/75" />
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div className={`space-y-8 ${isHeroVisible ? 'animate-slide-up' : 'opacity-0'}`}>
+          <div
+            className={`space-y-8 ${isHeroVisible ? "animate-slide-up" : "opacity-0"}`}
+          >
             <h1 className="font-heading text-h1 font-bold text-foreground">
-              Never Run Out.<br />
+              Never Run Out.
+              <br />
               <span className="text-accent">Always Know.</span>
             </h1>
             <p className="text-body text-muted-foreground max-w-xl">
               Real-time stock, smart reorders, and analytics—free to start.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/signup" className="bg-accent text-accent-foreground px-8 py-4 rounded-xl font-medium text-lg btn-hover text-center">
+              <Link
+                to="/signup"
+                className="bg-accent text-accent-foreground px-8 py-4 rounded-xl font-medium text-lg btn-hover text-center"
+              >
                 Start Free
               </Link>
               <button className="border border-border text-foreground px-8 py-4 rounded-xl font-medium text-lg btn-hover flex items-center justify-center space-x-2">
@@ -193,7 +320,9 @@ const HeroSection = () => {
 
             {/* Social Proof */}
             <div className="pt-8">
-              <p className="text-sm text-muted-foreground mb-4">Trusted by teams at</p>
+              <p className="text-sm text-muted-foreground mb-4">
+                Trusted by teams at
+              </p>
               <div className="flex items-center space-x-8 opacity-60">
                 <span className="text-lg font-semibold">Shopify</span>
                 <span className="text-lg font-semibold">WooCommerce</span>
@@ -203,7 +332,10 @@ const HeroSection = () => {
             </div>
           </div>
 
-          <div className={`relative ${isHeroVisible ? 'animate-fade-in' : 'opacity-0'}`} style={{ animationDelay: '200ms' }}>
+          <div
+            className={`relative ${isHeroVisible ? "animate-fade-in" : "opacity-0"}`}
+            style={{ animationDelay: "200ms" }}
+          >
             <div className="bg-card rounded-2xl p-6 shadow-xl border relative overflow-hidden">
               {/* Subtle warehouse pattern in dashboard */}
               <div className="absolute inset-0 warehouse-pattern opacity-20" />
@@ -213,7 +345,9 @@ const HeroSection = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Package className="w-5 h-5 text-accent" />
-                    <h3 className="font-semibold text-lg">Warehouse Overview</h3>
+                    <h3 className="font-semibold text-lg">
+                      Warehouse Overview
+                    </h3>
                   </div>
                   <div className="w-3 h-3 bg-success rounded-full animate-pulse-soft"></div>
                 </div>
@@ -223,17 +357,23 @@ const HeroSection = () => {
                   {/* Fill Rate Card */}
                   <div className="bg-success/10 p-4 rounded-lg text-center border border-success/20 shadow-sm">
                     <div className="text-2xl font-bold text-success">99.2%</div>
-                    <div className="text-sm text-muted-foreground">Fill Rate</div>
+                    <div className="text-sm text-muted-foreground">
+                      Fill Rate
+                    </div>
                   </div>
                   {/* Carrying Cost Card */}
                   <div className="bg-accent/10 p-4 rounded-lg text-center border border-accent/20 shadow-sm">
                     <div className="text-2xl font-bold text-accent">↓24%</div>
-                    <div className="text-sm text-muted-foreground">Carrying Cost</div>
+                    <div className="text-sm text-muted-foreground">
+                      Carrying Cost
+                    </div>
                   </div>
                   {/* Forecast Accuracy Card */}
                   <div className="bg-warning/10 p-4 rounded-lg text-center border border-warning/20 shadow-sm">
                     <div className="text-2xl font-bold text-warning">↑18%</div>
-                    <div className="text-sm text-muted-foreground">Forecast Accuracy</div>
+                    <div className="text-sm text-muted-foreground">
+                      Forecast Accuracy
+                    </div>
                   </div>
                 </div>
 
@@ -242,7 +382,10 @@ const HeroSection = () => {
                   <Package className="w-4 h-4" />
                   <span>Stockouts ↓ 38%</span>
                 </div>
-                <div className="absolute top-[130px] -left-4 bg-accent text-accent-foreground px-3 py-2 rounded-lg text-sm font-medium shadow-lg animate-fade-in flex items-center space-x-1" style={{ animationDelay: '400ms' }}>
+                <div
+                  className="absolute top-[130px] -left-4 bg-accent text-accent-foreground px-3 py-2 rounded-lg text-sm font-medium shadow-lg animate-fade-in flex items-center space-x-1"
+                  style={{ animationDelay: "400ms" }}
+                >
                   <TrendingUp className="w-4 h-4" />
                   <span>Forecast ↑ 22%</span>
                 </div>
@@ -263,18 +406,18 @@ const PainPromiseSection = () => {
     {
       icon: <AlertTriangle className="w-8 h-8 text-warning" />,
       pain: "Overselling",
-      promise: "Real-time sync prevents oversells"
+      promise: "Real-time sync prevents oversells",
     },
     {
       icon: <FileText className="w-8 h-8 text-warning" />,
       pain: "Manual errors",
-      promise: "Automated processes eliminate mistakes"
+      promise: "Automated processes eliminate mistakes",
     },
     {
       icon: <Package className="w-8 h-8 text-warning" />,
       pain: "Dead stock",
-      promise: "Smart analytics optimize inventory"
-    }
+      promise: "Smart analytics optimize inventory",
+    },
   ];
 
   return (
@@ -284,12 +427,14 @@ const PainPromiseSection = () => {
           {painPoints.map((item, index) => (
             <div
               key={index}
-              className={`text-center space-y-4 ${isVisible ? 'animate-scale-in' : 'opacity-0'}`}
+              className={`text-center space-y-4 ${isVisible ? "animate-scale-in" : "opacity-0"}`}
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="flex justify-center">{item.icon}</div>
               <div>
-                <p className="text-muted-foreground line-through">{item.pain}</p>
+                <p className="text-muted-foreground line-through">
+                  {item.pain}
+                </p>
                 <p className="font-semibold text-foreground">{item.promise}</p>
               </div>
             </div>
@@ -308,33 +453,34 @@ const FeatureGrid = () => {
     {
       icon: <RefreshCw className="w-8 h-8 text-accent" />,
       title: "Real-time Sync",
-      description: "Instant updates across all your sales channels and locations."
+      description:
+        "Instant updates across all your sales channels and locations.",
     },
     {
       icon: <TrendingUp className="w-8 h-8 text-accent" />,
       title: "Smart Reorder Points",
-      description: "AI-powered thresholds that adapt to your sales patterns."
+      description: "AI-powered thresholds that adapt to your sales patterns.",
     },
     {
       icon: <MapPin className="w-8 h-8 text-accent" />,
       title: "Multi-Location",
-      description: "Manage inventory across warehouses, stores, and channels."
+      description: "Manage inventory across warehouses, stores, and channels.",
     },
     {
       icon: <ScanLine className="w-8 h-8 text-accent" />,
       title: "Barcode/QR",
-      description: "Quick scanning for fast stock counts and updates."
+      description: "Quick scanning for fast stock counts and updates.",
     },
     {
       icon: <Layers className="w-8 h-8 text-accent" />,
       title: "SKU Bundles/Kits",
-      description: "Track complex products and component inventory."
+      description: "Track complex products and component inventory.",
     },
     {
       icon: <FileText className="w-8 h-8 text-accent" />,
       title: "Audit & Logs",
-      description: "Complete trail of all inventory movements and changes."
-    }
+      description: "Complete trail of all inventory movements and changes.",
+    },
   ];
 
   return (
@@ -342,9 +488,12 @@ const FeatureGrid = () => {
       <div className="warehouse-pattern absolute inset-0" />
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center space-y-4 mb-16">
-          <h2 className="font-heading text-h2 font-semibold text-foreground">Everything you need</h2>
+          <h2 className="font-heading text-h2 font-semibold text-foreground">
+            Everything you need
+          </h2>
           <p className="text-body text-muted-foreground max-w-2xl mx-auto">
-            Powerful features that scale with your business, from startup to enterprise.
+            Powerful features that scale with your business, from startup to
+            enterprise.
           </p>
         </div>
 
@@ -352,14 +501,19 @@ const FeatureGrid = () => {
           {features.map((feature, index) => (
             <div
               key={index}
-              className={`bg-card p-6 rounded-2xl border card-hover ${isVisible ? 'animate-scale-in' : 'opacity-0'}`}
+              className={`bg-card p-6 rounded-2xl border card-hover ${isVisible ? "animate-scale-in" : "opacity-0"}`}
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="space-y-4">
                 <div>{feature.icon}</div>
-                <h3 className="font-heading text-xl font-semibold text-foreground">{feature.title}</h3>
+                <h3 className="font-heading text-xl font-semibold text-foreground">
+                  {feature.title}
+                </h3>
                 <p className="text-muted-foreground">{feature.description}</p>
-                <a href="#" className="inline-flex items-center text-accent hover:text-accent/80 transition-colors">
+                <a
+                  href="#"
+                  className="inline-flex items-center text-accent hover:text-accent/80 transition-colors"
+                >
                   Learn more <ArrowRight className="w-4 h-4 ml-1" />
                 </a>
               </div>
@@ -379,27 +533,32 @@ const HowItWorksSection = () => {
     {
       number: "01",
       title: "Connect channels",
-      description: "Link your Shopify, WooCommerce, or custom API in minutes."
+      description: "Link your Shopify, WooCommerce, or custom API in minutes.",
     },
     {
       number: "02",
       title: "Import SKUs & set thresholds",
-      description: "Automatically import products and configure smart reorder points."
+      description:
+        "Automatically import products and configure smart reorder points.",
     },
     {
       number: "03",
       title: "Automate reorders & track analytics",
-      description: "Sit back as the system manages inventory and provides insights."
-    }
+      description:
+        "Sit back as the system manages inventory and provides insights.",
+    },
   ];
 
   return (
     <section id="how-it-works" ref={ref} className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="text-center space-y-4 mb-16">
-          <h2 className="font-heading text-h2 font-semibold text-foreground">How it works</h2>
+          <h2 className="font-heading text-h2 font-semibold text-foreground">
+            How it works
+          </h2>
           <p className="text-body text-muted-foreground max-w-2xl mx-auto">
-            Get up and running in under 10 minutes with our simple 3-step process.
+            Get up and running in under 10 minutes with our simple 3-step
+            process.
           </p>
         </div>
 
@@ -407,20 +566,24 @@ const HowItWorksSection = () => {
           <div className="relative">
             {/* Progress line */}
             <div className="absolute top-16 left-0 right-0 h-0.5 bg-border hidden lg:block">
-              <div className={`h-full bg-accent transition-all duration-1000 ${isVisible ? 'w-full' : 'w-0'}`}></div>
+              <div
+                className={`h-full bg-accent transition-all duration-1000 ${isVisible ? "w-full" : "w-0"}`}
+              ></div>
             </div>
 
             <div className="grid lg:grid-cols-3 gap-8">
               {steps.map((step, index) => (
                 <div
                   key={index}
-                  className={`text-center space-y-4 ${isVisible ? 'animate-slide-up' : 'opacity-0'}`}
+                  className={`text-center space-y-4 ${isVisible ? "animate-slide-up" : "opacity-0"}`}
                   style={{ animationDelay: `${index * 200}ms` }}
                 >
                   <div className="w-16 h-16 bg-accent text-accent-foreground rounded-full flex items-center justify-center font-heading font-bold text-xl mx-auto relative z-10">
                     {step.number}
                   </div>
-                  <h3 className="font-heading text-xl font-semibold text-foreground">{step.title}</h3>
+                  <h3 className="font-heading text-xl font-semibold text-foreground">
+                    {step.title}
+                  </h3>
                   <p className="text-muted-foreground">{step.description}</p>
                 </div>
               ))}
@@ -452,29 +615,56 @@ const KPISection = () => {
       <div className="warehouse-boxes absolute inset-0" />
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center space-y-4 mb-16">
-          <h2 className="font-heading text-h2 font-semibold text-foreground">Real results</h2>
+          <h2 className="font-heading text-h2 font-semibold text-foreground">
+            Real results
+          </h2>
           <p className="text-body text-muted-foreground max-w-2xl mx-auto">
-            See the impact on your business metrics with our smart inventory management.
+            See the impact on your business metrics with our smart inventory
+            management.
           </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-          <div className={`text-center space-y-2 ${isVisible ? 'animate-scale-in' : 'opacity-0'}`}>
-            <div className="text-4xl font-bold text-success">{fillRate.toFixed(1)}%</div>
+          <div
+            className={`text-center space-y-2 ${isVisible ? "animate-scale-in" : "opacity-0"}`}
+          >
+            <div className="text-4xl font-bold text-success">
+              {fillRate.toFixed(1)}%
+            </div>
             <div className="text-lg font-medium text-foreground">Fill Rate</div>
-            <div className="text-sm text-muted-foreground">Never miss a sale again</div>
+            <div className="text-sm text-muted-foreground">
+              Never miss a sale again
+            </div>
           </div>
 
-          <div className={`text-center space-y-2 ${isVisible ? 'animate-scale-in' : 'opacity-0'}`} style={{ animationDelay: '200ms' }}>
-            <div className="text-4xl font-bold text-accent">↓{carryingCost}%</div>
-            <div className="text-lg font-medium text-foreground">Carrying Cost</div>
-            <div className="text-sm text-muted-foreground">Reduce excess inventory</div>
+          <div
+            className={`text-center space-y-2 ${isVisible ? "animate-scale-in" : "opacity-0"}`}
+            style={{ animationDelay: "200ms" }}
+          >
+            <div className="text-4xl font-bold text-accent">
+              ↓{carryingCost}%
+            </div>
+            <div className="text-lg font-medium text-foreground">
+              Carrying Cost
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Reduce excess inventory
+            </div>
           </div>
 
-          <div className={`text-center space-y-2 ${isVisible ? 'animate-scale-in' : 'opacity-0'}`} style={{ animationDelay: '400ms' }}>
-            <div className="text-4xl font-bold text-warning">↑{forecastAccuracy}%</div>
-            <div className="text-lg font-medium text-foreground">Forecast Accuracy</div>
-            <div className="text-sm text-muted-foreground">Better demand planning</div>
+          <div
+            className={`text-center space-y-2 ${isVisible ? "animate-scale-in" : "opacity-0"}`}
+            style={{ animationDelay: "400ms" }}
+          >
+            <div className="text-4xl font-bold text-warning">
+              ↑{forecastAccuracy}%
+            </div>
+            <div className="text-lg font-medium text-foreground">
+              Forecast Accuracy
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Better demand planning
+            </div>
           </div>
         </div>
       </div>
@@ -495,12 +685,14 @@ const IntegrationsSection = () => {
     { name: "QuickBooks", logo: "📊" },
     { name: "Xero", logo: "💼" },
     { name: "Amazon", logo: "📋" },
-    { name: "eBay", logo: "🏷️" }
+    { name: "eBay", logo: "🏷️" },
   ];
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % Math.ceil(integrations.length / 4));
+      setCurrentIndex(
+        (prev) => (prev + 1) % Math.ceil(integrations.length / 4),
+      );
     }, 3000);
     return () => clearInterval(interval);
   }, []);
@@ -509,7 +701,9 @@ const IntegrationsSection = () => {
     <section id="integrations" ref={ref} className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="text-center space-y-4 mb-16">
-          <h2 className="font-heading text-h2 font-semibold text-foreground">Works with your tools</h2>
+          <h2 className="font-heading text-h2 font-semibold text-foreground">
+            Works with your tools
+          </h2>
           <p className="text-body text-muted-foreground max-w-2xl mx-auto">
             Seamlessly integrate with the platforms you already use.
           </p>
@@ -520,33 +714,44 @@ const IntegrationsSection = () => {
             className="flex transition-transform duration-500 ease-in-out"
             style={{ transform: `translateX(-${currentIndex * 100}%)` }}
           >
-            {Array.from({ length: Math.ceil(integrations.length / 4) }).map((_, groupIndex) => (
-              <div key={groupIndex} className="w-full flex-shrink-0">
-                <div className="grid grid-cols-4 gap-8">
-                  {integrations.slice(groupIndex * 4, (groupIndex + 1) * 4).map((integration, index) => (
-                    <div
-                      key={index}
-                      className="text-center space-y-4 opacity-60 hover:opacity-100 transition-opacity duration-300"
-                    >
-                      <div className="text-4xl">{integration.logo}</div>
-                      <div className="font-medium text-foreground">{integration.name}</div>
-                    </div>
-                  ))}
+            {Array.from({ length: Math.ceil(integrations.length / 4) }).map(
+              (_, groupIndex) => (
+                <div key={groupIndex} className="w-full flex-shrink-0">
+                  <div className="grid grid-cols-4 gap-8">
+                    {integrations
+                      .slice(groupIndex * 4, (groupIndex + 1) * 4)
+                      .map((integration, index) => (
+                        <div
+                          key={index}
+                          className="text-center space-y-4 opacity-60 hover:opacity-100 transition-opacity duration-300"
+                        >
+                          <div className="text-4xl">{integration.logo}</div>
+                          <div className="font-medium text-foreground">
+                            {integration.name}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ),
+            )}
           </div>
         </div>
 
         <div className="flex justify-center space-x-2 mt-8">
-          {Array.from({ length: Math.ceil(integrations.length / 4) }).map((_, index) => (
-            <button
-              key={index}
-              className={`w-3 h-3 rounded-full transition-colors ${index === currentIndex ? 'bg-accent' : 'bg-muted-foreground/30'
+          {Array.from({ length: Math.ceil(integrations.length / 4) }).map(
+            (_, index) => (
+              <button
+                key={index}
+                className={`w-3 h-3 rounded-full transition-colors ${
+                  index === currentIndex
+                    ? "bg-accent"
+                    : "bg-muted-foreground/30"
                 }`}
-              onClick={() => setCurrentIndex(index)}
-            />
-          ))}
+                onClick={() => setCurrentIndex(index)}
+              />
+            ),
+          )}
         </div>
       </div>
     </section>
@@ -563,7 +768,7 @@ const SecuritySection = () => {
     "Single sign-on (SSO) support",
     "Two-factor authentication (2FA)",
     "Complete audit trails",
-    "Encryption at rest and in transit"
+    "Encryption at rest and in transit",
   ];
 
   return (
@@ -571,13 +776,16 @@ const SecuritySection = () => {
       <div className="warehouse-pattern absolute inset-0" />
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div className={`space-y-8 ${isVisible ? 'animate-slide-up' : 'opacity-0'}`}>
+          <div
+            className={`space-y-8 ${isVisible ? "animate-slide-up" : "opacity-0"}`}
+          >
             <div className="space-y-4">
               <h2 className="font-heading text-h2 font-semibold text-foreground">
                 Enterprise-grade security
               </h2>
               <p className="text-body text-muted-foreground">
-                Your data is protected with the highest security standards and compliance certifications.
+                Your data is protected with the highest security standards and
+                compliance certifications.
               </p>
             </div>
 
@@ -585,7 +793,7 @@ const SecuritySection = () => {
               {securityFeatures.map((feature, index) => (
                 <div
                   key={index}
-                  className={`flex items-center space-x-3 ${isVisible ? 'animate-fade-in' : 'opacity-0'}`}
+                  className={`flex items-center space-x-3 ${isVisible ? "animate-fade-in" : "opacity-0"}`}
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <Check className="w-5 h-5 text-success flex-shrink-0" />
@@ -595,7 +803,9 @@ const SecuritySection = () => {
             </div>
           </div>
 
-          <div className={`flex justify-center ${isVisible ? 'animate-scale-in' : 'opacity-0'}`}>
+          <div
+            className={`flex justify-center ${isVisible ? "animate-scale-in" : "opacity-0"}`}
+          >
             <div className="relative">
               <div className="w-48 h-48 bg-accent/10 rounded-full flex items-center justify-center">
                 <Shield className="w-24 h-24 text-accent animate-pulse-soft" />
@@ -620,22 +830,25 @@ const TestimonialsSection = () => {
       role: "Operations Manager",
       company: "TechStyle Fashion",
       rating: 5,
-      quote: "InMyStack reduced our stockouts by 40% in the first month. The smart reorder points are incredibly accurate."
+      quote:
+        "InMyStack reduced our stockouts by 40% in the first month. The smart reorder points are incredibly accurate.",
     },
     {
       name: "Michael Rodriguez",
       role: "Inventory Director",
       company: "HomeGoods Plus",
       rating: 5,
-      quote: "Finally, inventory management that actually works. Our carrying costs dropped 30% while maintaining perfect availability."
+      quote:
+        "Finally, inventory management that actually works. Our carrying costs dropped 30% while maintaining perfect availability.",
     },
     {
       name: "Emma Thompson",
       role: "E-commerce Manager",
       company: "Lifestyle Brands Co",
       rating: 5,
-      quote: "The real-time sync across all our channels is a game-changer. No more overselling or manual reconciliation."
-    }
+      quote:
+        "The real-time sync across all our channels is a game-changer. No more overselling or manual reconciliation.",
+    },
   ];
 
   useEffect(() => {
@@ -649,9 +862,12 @@ const TestimonialsSection = () => {
     <section ref={ref} className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="text-center space-y-4 mb-16">
-          <h2 className="font-heading text-h2 font-semibold text-foreground">What our customers say</h2>
+          <h2 className="font-heading text-h2 font-semibold text-foreground">
+            What our customers say
+          </h2>
           <p className="text-body text-muted-foreground max-w-2xl mx-auto">
-            Join thousands of businesses that trust InMyStack with their inventory.
+            Join thousands of businesses that trust InMyStack with their
+            inventory.
           </p>
         </div>
 
@@ -665,9 +881,14 @@ const TestimonialsSection = () => {
                 <div key={index} className="w-full flex-shrink-0">
                   <div className="bg-card p-8 rounded-2xl border text-center space-y-6 mx-4">
                     <div className="flex justify-center space-x-1">
-                      {Array.from({ length: testimonial.rating }).map((_, i) => (
-                        <Star key={i} className="w-5 h-5 fill-warning text-warning" />
-                      ))}
+                      {Array.from({ length: testimonial.rating }).map(
+                        (_, i) => (
+                          <Star
+                            key={i}
+                            className="w-5 h-5 fill-warning text-warning"
+                          />
+                        ),
+                      )}
                     </div>
 
                     <blockquote className="text-lg text-foreground">
@@ -675,7 +896,9 @@ const TestimonialsSection = () => {
                     </blockquote>
 
                     <div className="space-y-2">
-                      <div className="font-semibold text-foreground">{testimonial.name}</div>
+                      <div className="font-semibold text-foreground">
+                        {testimonial.name}
+                      </div>
                       <div className="text-sm text-muted-foreground">
                         {testimonial.role} at {testimonial.company}
                       </div>
@@ -690,8 +913,11 @@ const TestimonialsSection = () => {
             {testimonials.map((_, index) => (
               <button
                 key={index}
-                className={`w-3 h-3 rounded-full transition-colors ${index === currentTestimonial ? 'bg-accent' : 'bg-muted-foreground/30'
-                  }`}
+                className={`w-3 h-3 rounded-full transition-colors ${
+                  index === currentTestimonial
+                    ? "bg-accent"
+                    : "bg-muted-foreground/30"
+                }`}
                 onClick={() => setCurrentTestimonial(index)}
               />
             ))}
@@ -707,17 +933,22 @@ const PricingSection = () => {
   const [ref, isVisible] = useIntersectionObserver();
   const [isYearly, setIsYearly] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<{ name: string; amount: number }>({ name: '', amount: 0 });
+  const [selectedPlan, setSelectedPlan] = useState<{
+    name: string;
+    amount: number;
+  }>({ name: "", amount: 0 });
 
-  const merchantVpa = (import.meta.env.VITE_MERCHANT_UPI as string) || 'example@upi';
-  const merchantName = (import.meta.env.VITE_MERCHANT_NAME as string) || 'InMyStack';
+  const merchantVpa =
+    (import.meta.env.VITE_MERCHANT_UPI as string) || "example@upi";
+  const merchantName =
+    (import.meta.env.VITE_MERCHANT_NAME as string) || "InMyStack";
 
   const buildUpiLink = (amount: number, note: string) => {
     const params = new URLSearchParams({
       pa: merchantVpa,
       pn: merchantName,
       am: String(amount),
-      cu: 'INR',
+      cu: "INR",
       tn: note,
     });
     return `upi://pay?${params.toString()}`;
@@ -733,10 +964,10 @@ const PricingSection = () => {
         "1 location",
         "Email support",
         "Basic reporting",
-        "Manual reorders"
+        "Manual reorders",
       ],
       cta: "Start Free",
-      popular: false
+      popular: false,
     },
     {
       name: "Pro",
@@ -748,10 +979,10 @@ const PricingSection = () => {
         "Priority support",
         "Advanced forecasting",
         "Smart reorder points",
-        "API access"
+        "API access",
       ],
       cta: "Start Free Trial",
-      popular: true
+      popular: true,
     },
     {
       name: "Business",
@@ -763,37 +994,45 @@ const PricingSection = () => {
         "SSO integration",
         "Audit logs",
         "Dedicated CSM",
-        "Custom integrations"
+        "Custom integrations",
       ],
       cta: "Contact Sales",
-      popular: false
-    }
+      popular: false,
+    },
   ];
 
   return (
     <section id="pricing" ref={ref} className="py-20">
       <div className="container mx-auto px-4">
         <div className="text-center space-y-4 mb-16">
-          <h2 className="font-heading text-h2 font-semibold text-foreground">Simple, transparent pricing</h2>
+          <h2 className="font-heading text-h2 font-semibold text-foreground">
+            Simple, transparent pricing
+          </h2>
           <p className="text-body text-muted-foreground max-w-2xl mx-auto">
             Start free and scale as you grow. No hidden fees or setup costs.
           </p>
 
           <div className="flex items-center justify-center space-x-4 mt-8">
-            <span className={`text-sm ${!isYearly ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
+            <span
+              className={`text-sm ${!isYearly ? "text-foreground font-medium" : "text-muted-foreground"}`}
+            >
               Monthly
             </span>
             <button
               onClick={() => setIsYearly(!isYearly)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isYearly ? 'bg-accent' : 'bg-muted'
-                }`}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                isYearly ? "bg-accent" : "bg-muted"
+              }`}
             >
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-background transition-transform ${isYearly ? 'translate-x-6' : 'translate-x-1'
-                  }`}
+                className={`inline-block h-4 w-4 transform rounded-full bg-background transition-transform ${
+                  isYearly ? "translate-x-6" : "translate-x-1"
+                }`}
               />
             </button>
-            <span className={`text-sm ${isYearly ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
+            <span
+              className={`text-sm ${isYearly ? "text-foreground font-medium" : "text-muted-foreground"}`}
+            >
               Yearly
             </span>
             {isYearly && (
@@ -808,8 +1047,9 @@ const PricingSection = () => {
           {plans.map((plan, index) => (
             <div
               key={index}
-              className={`bg-card p-8 rounded-2xl border relative ${plan.popular ? 'border-accent shadow-lg scale-105' : ''
-                } ${isVisible ? 'animate-scale-in' : 'opacity-0'}`}
+              className={`bg-card p-8 rounded-2xl border relative ${
+                plan.popular ? "border-accent shadow-lg scale-105" : ""
+              } ${isVisible ? "animate-scale-in" : "opacity-0"}`}
               style={{ animationDelay: `${index * 100}ms` }}
             >
               {plan.popular && (
@@ -822,7 +1062,9 @@ const PricingSection = () => {
 
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <h3 className="font-heading text-xl font-semibold text-foreground">{plan.name}</h3>
+                  <h3 className="font-heading text-xl font-semibold text-foreground">
+                    {plan.name}
+                  </h3>
                   <p className="text-muted-foreground">{plan.description}</p>
                 </div>
 
@@ -832,7 +1074,7 @@ const PricingSection = () => {
                       ₹{isYearly ? plan.price.yearly : plan.price.monthly}
                     </span>
                     <span className="text-muted-foreground">
-                      /{isYearly ? 'month' : 'month'}
+                      /{isYearly ? "month" : "month"}
                     </span>
                   </div>
                   {isYearly && plan.price.yearly !== plan.price.monthly && (
@@ -843,16 +1085,30 @@ const PricingSection = () => {
                 </div>
 
                 <button
-                  className={`w-full py-3 px-6 rounded-lg font-medium transition-all ${plan.popular
-                    ? 'bg-accent text-accent-foreground btn-hover'
-                    : 'border border-border text-foreground hover:bg-muted'
+                  className={`w-full py-3 px-6 rounded-lg font-medium transition-all ${
+                    plan.popular
+                      ? "bg-accent text-accent-foreground btn-hover"
+                      : "border border-border text-foreground hover:bg-muted"
                   }`}
                   onClick={() => {
-                    if (plan.name === 'Business') {
-                      window.location.href = 'mailto:sales@inmystack.app?subject=Contact%20Sales%20-%20Business%20Plan';
+                    // Business plan -> contact sales
+                    if (plan.name === "Business") {
+                      window.location.href =
+                        "mailto:sales@inmystack.app?subject=Contact%20Sales%20-%20Business%20Plan";
                       return;
                     }
-                    const amount = isYearly ? plan.price.yearly : plan.price.monthly;
+
+                    // Free plan -> navigate to signup without payment
+                    if (plan.name === "Free") {
+                      // Use query param so signup can preselect plan
+                      window.location.href = `/signup?plan=Free`;
+                      return;
+                    }
+
+                    // Paid plans -> open payment modal
+                    const amount = isYearly
+                      ? plan.price.yearly
+                      : plan.price.monthly;
                     setSelectedPlan({ name: plan.name, amount });
                     setPaymentOpen(true);
                   }}
@@ -862,7 +1118,10 @@ const PricingSection = () => {
 
                 <ul className="space-y-3">
                   {plan.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-center space-x-3">
+                    <li
+                      key={featureIndex}
+                      className="flex items-center space-x-3"
+                    >
                       <Check className="w-4 h-4 text-success flex-shrink-0" />
                       <span className="text-foreground text-sm">{feature}</span>
                     </li>
@@ -877,21 +1136,40 @@ const PricingSection = () => {
       <Dialog open={paymentOpen} onOpenChange={setPaymentOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Complete payment</DialogTitle>
+            <DialogTitle>
+              {selectedPlan.amount > 0
+                ? "Complete payment"
+                : "No payment required"}
+            </DialogTitle>
             <DialogDescription>
-              Plan: {selectedPlan.name} • Amount: ₹{selectedPlan.amount.toLocaleString()}
+              {selectedPlan.amount > 0
+                ? `Plan: ${selectedPlan.name} • Amount: ₹${selectedPlan.amount.toLocaleString()}`
+                : `You selected the ${selectedPlan.name} plan which is free — no payment is required.`}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <a
-              href={buildUpiLink(selectedPlan.amount, `${selectedPlan.name} plan`)}
-              className="w-full inline-flex items-center justify-center h-11 rounded-lg bg-accent text-accent-foreground btn-hover"
-            >
-              Pay with UPI (PhonePe/Paytm/Google Pay)
-            </a>
-            <div className="text-xs text-muted-foreground">
-              Tip: On desktop, copy the UPI link into your UPI app if it doesn’t open automatically.
-            </div>
+            {selectedPlan.amount > 0 ? (
+              <>
+                <a
+                  href={buildUpiLink(
+                    selectedPlan.amount,
+                    `${selectedPlan.name} plan`,
+                  )}
+                  className="w-full inline-flex items-center justify-center h-11 rounded-lg bg-accent text-accent-foreground btn-hover"
+                >
+                  Pay with UPI (PhonePe/Paytm/Google Pay)
+                </a>
+                <div className="text-xs text-muted-foreground">
+                  Tip: On desktop, copy the UPI link into your UPI app if it
+                  doesn’t open automatically.
+                </div>
+              </>
+            ) : (
+              <div className="text-sm text-muted-foreground">
+                No payment is required for the Free plan. Click "Start Free" on
+                the plan card to create your free account.
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
@@ -907,35 +1185,43 @@ const FAQSection = () => {
   const faqs = [
     {
       question: "Who owns the data in InMyStack?",
-      answer: "You own all your data. We're simply the custodian. You can export your data at any time, and we'll delete it from our servers when you cancel your account."
+      answer:
+        "You own all your data. We're simply the custodian. You can export your data at any time, and we'll delete it from our servers when you cancel your account.",
     },
     {
       question: "What integrations do you support?",
-      answer: "We integrate with all major e-commerce platforms (Shopify, WooCommerce, BigCommerce, Magento), accounting software (QuickBooks, Xero), and marketplaces (Amazon, eBay). Plus custom API integration for proprietary systems."
+      answer:
+        "We integrate with all major e-commerce platforms (Shopify, WooCommerce, BigCommerce, Magento), accounting software (QuickBooks, Xero), and marketplaces (Amazon, eBay). Plus custom API integration for proprietary systems.",
     },
     {
       question: "How long does onboarding take?",
-      answer: "Most customers are fully set up within 24 hours. Our integration connects in minutes, and our team helps optimize your reorder points based on your historical data."
+      answer:
+        "Most customers are fully set up within 24 hours. Our integration connects in minutes, and our team helps optimize your reorder points based on your historical data.",
     },
     {
       question: "Are there any limits on the free plan?",
-      answer: "The free plan includes up to 500 SKUs, 1 location, and email support. You can upgrade anytime as your business grows, with no data migration required."
+      answer:
+        "The free plan includes up to 500 SKUs, 1 location, and email support. You can upgrade anytime as your business grows, with no data migration required.",
     },
     {
       question: "What's your support SLA?",
-      answer: "Free plan: 48-hour email response. Pro plan: 24-hour response with priority support. Business plan: 4-hour response with dedicated customer success manager."
+      answer:
+        "Free plan: 48-hour email response. Pro plan: 24-hour response with priority support. Business plan: 4-hour response with dedicated customer success manager.",
     },
     {
       question: "Can I cancel anytime?",
-      answer: "Yes, you can cancel anytime with no penalty. Your account will remain active until the end of your billing period, and you can export all your data."
-    }
+      answer:
+        "Yes, you can cancel anytime with no penalty. Your account will remain active until the end of your billing period, and you can export all your data.",
+    },
   ];
 
   return (
     <section id="faq" ref={ref} className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="text-center space-y-4 mb-16">
-          <h2 className="font-heading text-h2 font-semibold text-foreground">Frequently asked questions</h2>
+          <h2 className="font-heading text-h2 font-semibold text-foreground">
+            Frequently asked questions
+          </h2>
           <p className="text-body text-muted-foreground max-w-2xl mx-auto">
             Everything you need to know about InMyStack.
           </p>
@@ -945,14 +1231,16 @@ const FAQSection = () => {
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className={`bg-card border rounded-lg ${isVisible ? 'animate-slide-up' : 'opacity-0'}`}
+              className={`bg-card border rounded-lg ${isVisible ? "animate-slide-up" : "opacity-0"}`}
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <button
                 className="w-full p-6 text-left flex items-center justify-between"
                 onClick={() => setOpenItem(openItem === index ? null : index)}
               >
-                <h3 className="font-medium text-foreground pr-4">{faq.question}</h3>
+                <h3 className="font-medium text-foreground pr-4">
+                  {faq.question}
+                </h3>
                 {openItem === index ? (
                   <Minus className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                 ) : (
@@ -980,15 +1268,21 @@ const FinalCTASection = () => {
   return (
     <section ref={ref} className="py-20 bg-accent text-accent-foreground">
       <div className="container mx-auto px-4 text-center">
-        <div className={`space-y-8 ${isVisible ? 'animate-fade-in' : 'opacity-0'}`}>
+        <div
+          className={`space-y-8 ${isVisible ? "animate-fade-in" : "opacity-0"}`}
+        >
           <h2 className="font-heading text-h2 font-semibold">
             Get inventory zen in days, not months
           </h2>
           <p className="text-lg opacity-90 max-w-2xl mx-auto">
-            Join thousands of businesses that have transformed their inventory management with InMyStack.
+            Join thousands of businesses that have transformed their inventory
+            management with InMyStack.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/signup" className="bg-background text-foreground px-8 py-4 rounded-xl font-medium text-lg btn-hover text-center">
+            <Link
+              to="/signup"
+              className="bg-background text-foreground px-8 py-4 rounded-xl font-medium text-lg btn-hover text-center"
+            >
               Start Free
             </Link>
             <button className="border border-accent-foreground/20 text-accent-foreground px-8 py-4 rounded-xl font-medium text-lg btn-hover">
@@ -1015,8 +1309,8 @@ const Footer = () => {
               <span className="text-2xl font-heading font-bold">InMyStack</span>
             </div>
             <p className="text-primary-foreground/80 max-w-md">
-              The smartest way to manage inventory across all your sales channels.
-              Never run out, always know.
+              The smartest way to manage inventory across all your sales
+              channels. Never run out, always know.
             </p>
             <div className="flex space-x-4">
               <Twitter className="w-5 h-5 opacity-60 hover:opacity-100 cursor-pointer transition-opacity" />
@@ -1028,30 +1322,114 @@ const Footer = () => {
           <div className="space-y-4">
             <h4 className="font-semibold">Product</h4>
             <ul className="space-y-2 text-sm text-primary-foreground/80">
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">Features</a></li>
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">Integrations</a></li>
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">API</a></li>
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">Pricing</a></li>
+              <li>
+                <a
+                  href="#"
+                  className="hover:text-primary-foreground transition-colors"
+                >
+                  Features
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="hover:text-primary-foreground transition-colors"
+                >
+                  Integrations
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="hover:text-primary-foreground transition-colors"
+                >
+                  API
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="hover:text-primary-foreground transition-colors"
+                >
+                  Pricing
+                </a>
+              </li>
             </ul>
           </div>
 
           <div className="space-y-4">
             <h4 className="font-semibold">Resources</h4>
             <ul className="space-y-2 text-sm text-primary-foreground/80">
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">Documentation</a></li>
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">Help Center</a></li>
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">Blog</a></li>
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">Case Studies</a></li>
+              <li>
+                <a
+                  href="#"
+                  className="hover:text-primary-foreground transition-colors"
+                >
+                  Documentation
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="hover:text-primary-foreground transition-colors"
+                >
+                  Help Center
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="hover:text-primary-foreground transition-colors"
+                >
+                  Blog
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="hover:text-primary-foreground transition-colors"
+                >
+                  Case Studies
+                </a>
+              </li>
             </ul>
           </div>
 
           <div className="space-y-4">
             <h4 className="font-semibold">Company</h4>
             <ul className="space-y-2 text-sm text-primary-foreground/80">
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">About</a></li>
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">Careers</a></li>
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">Contact</a></li>
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">Security</a></li>
+              <li>
+                <a
+                  href="#"
+                  className="hover:text-primary-foreground transition-colors"
+                >
+                  About
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="hover:text-primary-foreground transition-colors"
+                >
+                  Careers
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="hover:text-primary-foreground transition-colors"
+                >
+                  Contact
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="hover:text-primary-foreground transition-colors"
+                >
+                  Security
+                </a>
+              </li>
             </ul>
           </div>
         </div>
@@ -1059,9 +1437,24 @@ const Footer = () => {
         <div className="border-t border-primary-foreground/20 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="flex space-x-6 text-sm text-primary-foreground/80">
-              <a href="#" className="hover:text-primary-foreground transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-primary-foreground transition-colors">Terms of Service</a>
-              <a href="#" className="hover:text-primary-foreground transition-colors">Cookie Policy</a>
+              <a
+                href="#"
+                className="hover:text-primary-foreground transition-colors"
+              >
+                Privacy Policy
+              </a>
+              <a
+                href="#"
+                className="hover:text-primary-foreground transition-colors"
+              >
+                Terms of Service
+              </a>
+              <a
+                href="#"
+                className="hover:text-primary-foreground transition-colors"
+              >
+                Cookie Policy
+              </a>
             </div>
             <div className="text-sm text-primary-foreground/80">
               © {currentYear} InMyStack. All rights reserved.
@@ -1076,7 +1469,9 @@ const Footer = () => {
 export default function Index() {
   return (
     <div className="min-h-screen bg-background">
-      <a href="#main" className="skip-link">Skip to content</a>
+      <a href="#main" className="skip-link">
+        Skip to content
+      </a>
       <TrustBar />
       <Header />
       <main id="main">

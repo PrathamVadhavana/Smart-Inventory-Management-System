@@ -59,7 +59,7 @@ interface Product {
     height: number;
   };
   images: string[];
-  status: 'active' | 'inactive' | 'discontinued';
+  status: "active" | "inactive" | "discontinued";
   trackInventory: boolean;
   warrantyPeriod: number;
   hsnCode: string;
@@ -108,28 +108,46 @@ const defaultCategories = [
 ];
 
 const subcategories: Record<string, string[]> = {
-  "Electronics": ["Smartphones", "Feature Phones", "Smartwatches", "Tablets", "Cameras", "TVs"],
-  "Mobile": ["Android", "iPhone", "Feature Phones"],
-  "Laptops": ["Gaming Laptops", "Business Laptops", "Ultrabooks", "2-in-1"],
-  "Tablets": ["iPad", "Android Tablets", "Windows Tablets"],
-  "Audio": ["Headphones", "Earbuds", "Speakers", "Soundbars"],
-  "Accessories": ["Cases & Covers", "Chargers", "Cables", "Power Banks", "Screen Protectors"],
-  "Cameras": ["DSLR", "Mirrorless", "Point & Shoot", "Action Cameras"],
-  "Televisions": ["LED", "OLED", "QLED", "Smart TV"],
-  "Wearables": ["Smart Bands", "Smartwatches"],
-  "Gaming": ["Consoles", "Controllers", "Games", "Gaming Chairs"],
-  "Networking": ["Routers", "Range Extenders", "Switches", "Modems"],
+  Electronics: [
+    "Smartphones",
+    "Feature Phones",
+    "Smartwatches",
+    "Tablets",
+    "Cameras",
+    "TVs",
+  ],
+  Mobile: ["Android", "iPhone", "Feature Phones"],
+  Laptops: ["Gaming Laptops", "Business Laptops", "Ultrabooks", "2-in-1"],
+  Tablets: ["iPad", "Android Tablets", "Windows Tablets"],
+  Audio: ["Headphones", "Earbuds", "Speakers", "Soundbars"],
+  Accessories: [
+    "Cases & Covers",
+    "Chargers",
+    "Cables",
+    "Power Banks",
+    "Screen Protectors",
+  ],
+  Cameras: ["DSLR", "Mirrorless", "Point & Shoot", "Action Cameras"],
+  Televisions: ["LED", "OLED", "QLED", "Smart TV"],
+  Wearables: ["Smart Bands", "Smartwatches"],
+  Gaming: ["Consoles", "Controllers", "Games", "Gaming Chairs"],
+  Networking: ["Routers", "Range Extenders", "Switches", "Modems"],
   "Computer Components": ["RAM", "Storage", "Motherboards", "GPUs", "PSU"],
   "Home Appliances": ["Air Purifiers", "Vacuum Cleaners", "Fans"],
-  "Kitchen Appliances": ["Microwaves", "Mixer Grinders", "Toasters", "Cooktops"],
+  "Kitchen Appliances": [
+    "Microwaves",
+    "Mixer Grinders",
+    "Toasters",
+    "Cooktops",
+  ],
   "Air Conditioners": ["Split AC", "Window AC", "Portable AC"],
-  "Refrigerators": ["Single Door", "Double Door", "Side-by-Side"],
+  Refrigerators: ["Single Door", "Double Door", "Side-by-Side"],
   "Washing Machines": ["Front Load", "Top Load", "Semi Automatic"],
-  "Fashion": ["Men", "Women", "Kids"],
-  "Footwear": ["Sports Shoes", "Casual Shoes", "Sandals"],
+  Fashion: ["Men", "Women", "Kids"],
+  Footwear: ["Sports Shoes", "Casual Shoes", "Sandals"],
   "Beauty & Personal Care": ["Skin Care", "Hair Care", "Fragrances"],
   "Sports & Fitness": ["Gym Equipment", "Sportswear", "Accessories"],
-  "Automotive": ["Car Accessories", "Bike Accessories", "Oils & Fluids"],
+  Automotive: ["Car Accessories", "Bike Accessories", "Oils & Fluids"],
   "Tools & Hardware": ["Hand Tools", "Power Tools", "Safety"],
   "Books & Stationery": ["Books", "Notebooks", "Art Supplies"],
   "Toys & Baby": ["Toys", "Baby Care", "Strollers"],
@@ -137,37 +155,88 @@ const subcategories: Record<string, string[]> = {
   "Pet Supplies": ["Food", "Grooming", "Toys"],
   "Garden & Outdoors": ["Plants", "Gardening Tools", "Outdoor Furniture"],
   "Health & Wellness": ["Supplements", "Medical Devices"],
-  "Watches": ["Analog", "Digital", "Smart"],
-  "Jewelry": ["Gold", "Silver", "Fashion Jewelry"],
+  Watches: ["Analog", "Digital", "Smart"],
+  Jewelry: ["Gold", "Silver", "Fashion Jewelry"],
   "Bags & Luggage": ["Backpacks", "Suitcases", "Handbags"],
   "Office Supplies": ["Printers", "Paper", "Organization"],
 };
 
 const defaultBrands = [
   // Mobile & Electronics
-  "Apple", "Samsung", "Xiaomi", "OnePlus", "Realme", "Vivo", "Oppo", "Motorola", "Nokia", "Google",
+  "Apple",
+  "Samsung",
+  "Xiaomi",
+  "OnePlus",
+  "Realme",
+  "Vivo",
+  "Oppo",
+  "Motorola",
+  "Nokia",
+  "Google",
   // PCs & Components
-  "Dell", "HP", "Lenovo", "Asus", "Acer", "MSI", "Gigabyte", "Intel", "AMD",
+  "Dell",
+  "HP",
+  "Lenovo",
+  "Asus",
+  "Acer",
+  "MSI",
+  "Gigabyte",
+  "Intel",
+  "AMD",
   // Audio
-  "Sony", "LG", "Bose", "JBL", "boAt", "Sennheiser", "Philips", "Nothing",
+  "Sony",
+  "LG",
+  "Bose",
+  "JBL",
+  "boAt",
+  "Sennheiser",
+  "Philips",
+  "Nothing",
   // Storage & Accessories
-  "Seagate", "Western Digital", "SanDisk", "Kingston", "Transcend", "Logitech", "Razer", "Corsair",
+  "Seagate",
+  "Western Digital",
+  "SanDisk",
+  "Kingston",
+  "Transcend",
+  "Logitech",
+  "Razer",
+  "Corsair",
   // Networking & Cameras
-  "TP-Link", "D-Link", "Canon", "Nikon", "Panasonic",
+  "TP-Link",
+  "D-Link",
+  "Canon",
+  "Nikon",
+  "Panasonic",
   // Appliances
-  "Whirlpool", "IFB", "Bosch", "Haier", "Voltas", "Godrej",
+  "Whirlpool",
+  "IFB",
+  "Bosch",
+  "Haier",
+  "Voltas",
+  "Godrej",
 ];
 
 const suppliers = [
-  "Apple Inc.", "Samsung", "Dell Technologies", "HP Inc.", "Lenovo", "Sony", "LG Electronics", "Microsoft"
+  "Apple Inc.",
+  "Samsung",
+  "Dell Technologies",
+  "HP Inc.",
+  "Lenovo",
+  "Sony",
+  "LG Electronics",
+  "Microsoft",
 ];
 
-const taxCategories = [
-  "GST 0%", "GST 5%", "GST 12%", "GST 18%", "GST 28%"
-];
+const taxCategories = ["GST 0%", "GST 5%", "GST 12%", "GST 18%", "GST 28%"];
 
 const unitsOfMeasurement = [
-  "Pieces", "Kg", "Grams", "Liters", "Meters", "Boxes", "Packs"
+  "Pieces",
+  "Kg",
+  "Grams",
+  "Liters",
+  "Meters",
+  "Boxes",
+  "Packs",
 ];
 
 interface EnhancedProductDialogProps {
@@ -178,12 +247,12 @@ interface EnhancedProductDialogProps {
   onOpenChange?: (open: boolean) => void;
 }
 
-export default function EnhancedProductDialog({ 
-  trigger, 
-  product, 
-  onSave, 
-  open, 
-  onOpenChange 
+export default function EnhancedProductDialog({
+  trigger,
+  product,
+  onSave,
+  open,
+  onOpenChange,
 }: EnhancedProductDialogProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentTab, setCurrentTab] = useState("basic");
@@ -222,17 +291,19 @@ export default function EnhancedProductDialog({
 
   const allCategories = useMemo(() => {
     try {
-      const saved = localStorage.getItem('dashboard_products');
+      const saved = localStorage.getItem("dashboard_products");
       const savedProducts = saved ? JSON.parse(saved) : [];
       const fromProducts = Array.from(
         new Set(
           (savedProducts || [])
             .map((p: any) => p?.category)
-            .filter((c: any) => typeof c === 'string' && c.trim() !== '')
-        )
+            .filter((c: any) => typeof c === "string" && c.trim() !== ""),
+        ),
       );
       const fromSubcatKeys = Object.keys(subcategories);
-      return Array.from(new Set([...defaultCategories, ...fromSubcatKeys, ...fromProducts]));
+      return Array.from(
+        new Set([...defaultCategories, ...fromSubcatKeys, ...fromProducts]),
+      );
     } catch {
       return defaultCategories;
     }
@@ -240,14 +311,14 @@ export default function EnhancedProductDialog({
 
   const allBrands = useMemo(() => {
     try {
-      const saved = localStorage.getItem('dashboard_products');
+      const saved = localStorage.getItem("dashboard_products");
       const savedProducts = saved ? JSON.parse(saved) : [];
       const fromProducts = Array.from(
         new Set(
           (savedProducts || [])
             .map((p: any) => p?.brand)
-            .filter((b: any) => typeof b === 'string' && b.trim() !== '')
-        )
+            .filter((b: any) => typeof b === "string" && b.trim() !== ""),
+        ),
       );
       return Array.from(new Set([...defaultBrands, ...fromProducts]));
     } catch {
@@ -258,14 +329,16 @@ export default function EnhancedProductDialog({
   const loadFilesAsDataUrls = async (files: FileList): Promise<string[]> => {
     const tasks: Promise<string>[] = [];
     Array.from(files).forEach((file) => {
-      if (!file.type.startsWith('image/')) return;
+      if (!file.type.startsWith("image/")) return;
       if (file.size > 10 * 1024 * 1024) return; // 10MB limit
-      tasks.push(new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result));
-        reader.onerror = () => reject(reader.error);
-        reader.readAsDataURL(file);
-      }));
+      tasks.push(
+        new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result));
+          reader.onerror = () => reject(reader.error);
+          reader.readAsDataURL(file);
+        }),
+      );
     });
     return Promise.all(tasks);
   };
@@ -275,7 +348,10 @@ export default function EnhancedProductDialog({
     try {
       const dataUrls = await loadFilesAsDataUrls(files);
       if (dataUrls.length === 0) return;
-      setFormData((prev) => ({ ...prev, images: [...prev.images, ...dataUrls] }));
+      setFormData((prev) => ({
+        ...prev,
+        images: [...prev.images, ...dataUrls],
+      }));
     } catch {}
   };
 
@@ -290,7 +366,8 @@ export default function EnhancedProductDialog({
 
   const calculateProfitMargin = () => {
     if (formData.costPrice > 0 && formData.unitPrice > 0) {
-      const margin = ((formData.unitPrice - formData.costPrice) / formData.unitPrice) * 100;
+      const margin =
+        ((formData.unitPrice - formData.costPrice) / formData.unitPrice) * 100;
       setFormData({ ...formData, profitMargin: parseFloat(margin.toFixed(2)) });
     }
   };
@@ -314,23 +391,23 @@ export default function EnhancedProductDialog({
   };
 
   const removeTag = (tagToRemove: string) => {
-    setFormData({ ...formData, tags: formData.tags.filter(tag => tag !== tagToRemove) });
+    setFormData({
+      ...formData,
+      tags: formData.tags.filter((tag) => tag !== tagToRemove),
+    });
   };
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      {trigger && (
-        <DialogTrigger asChild>
-          {trigger}
-        </DialogTrigger>
-      )}
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {product?.id ? "Edit Product" : "Add New Product"}
           </DialogTitle>
           <DialogDescription>
-            Fill in the product details across all tabs to create a comprehensive product entry.
+            Fill in the product details across all tabs to create a
+            comprehensive product entry.
           </DialogDescription>
         </DialogHeader>
 
@@ -352,12 +429,19 @@ export default function EnhancedProductDialog({
                   id="name"
                   placeholder="Enter product name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="status">Status</Label>
-                <Select value={formData.status} onValueChange={(value: any) => setFormData({ ...formData, status: value })}>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value: any) =>
+                    setFormData({ ...formData, status: value })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -376,64 +460,100 @@ export default function EnhancedProductDialog({
                 id="description"
                 placeholder="Enter detailed product description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 rows={3}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="shortDescription">Short Description (for receipts)</Label>
+              <Label htmlFor="shortDescription">
+                Short Description (for receipts)
+              </Label>
               <Input
                 id="shortDescription"
                 placeholder="Brief description for bills"
                 value={formData.shortDescription}
-                onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, shortDescription: e.target.value })
+                }
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="category">Category *</Label>
-                <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value, subcategory: "" })}>
+                <Select
+                  value={formData.category}
+                  onValueChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      category: value,
+                      subcategory: "",
+                    })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {allCategories.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
+                    {allCategories
+                      .filter(
+                        (category): category is string =>
+                          typeof category === "string",
+                      )
+                      .map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="subcategory">Subcategory</Label>
-                <Select value={formData.subcategory} onValueChange={(value) => setFormData({ ...formData, subcategory: value })}>
+                <Select
+                  value={formData.subcategory}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, subcategory: value })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select subcategory" />
                   </SelectTrigger>
                   <SelectContent>
-                    {(subcategories[formData.category] || []).map((subcategory) => (
-                      <SelectItem key={subcategory} value={subcategory}>
-                        {subcategory}
-                      </SelectItem>
-                    ))}
+                    {(subcategories[formData.category] || []).map(
+                      (subcategory) => (
+                        <SelectItem key={subcategory} value={subcategory}>
+                          {subcategory}
+                        </SelectItem>
+                      ),
+                    )}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="brand">Brand</Label>
-                <Select value={formData.brand} onValueChange={(value) => setFormData({ ...formData, brand: value })}>
+                <Select
+                  value={formData.brand}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, brand: value })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select brand" />
                   </SelectTrigger>
                   <SelectContent>
-                    {allBrands.map((brand) => (
-                      <SelectItem key={brand} value={brand}>
-                        {brand}
-                      </SelectItem>
-                    ))}
+                    {allBrands
+                      .filter(
+                        (brand): brand is string => typeof brand === "string",
+                      )
+                      .map((brand) => (
+                        <SelectItem key={brand} value={brand}>
+                          {brand}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -449,7 +569,9 @@ export default function EnhancedProductDialog({
                     id="sku"
                     placeholder="Product SKU"
                     value={formData.sku}
-                    onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, sku: e.target.value })
+                    }
                   />
                   <Button type="button" variant="outline" onClick={generateSKU}>
                     Generate
@@ -463,7 +585,9 @@ export default function EnhancedProductDialog({
                     id="barcode"
                     placeholder="Product barcode"
                     value={formData.barcode}
-                    onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, barcode: e.target.value })
+                    }
                   />
                   <Button type="button" variant="outline">
                     <ScanLine className="w-4 h-4" />
@@ -479,12 +603,19 @@ export default function EnhancedProductDialog({
                   id="hsnCode"
                   placeholder="HSN/SAC Code"
                   value={formData.hsnCode}
-                  onChange={(e) => setFormData({ ...formData, hsnCode: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, hsnCode: e.target.value })
+                  }
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="taxCategory">Tax Category</Label>
-                <Select value={formData.taxCategory} onValueChange={(value) => setFormData({ ...formData, taxCategory: value })}>
+                <Select
+                  value={formData.taxCategory}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, taxCategory: value })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -509,7 +640,12 @@ export default function EnhancedProductDialog({
                   type="number"
                   placeholder="0.00"
                   value={formData.costPrice}
-                  onChange={(e) => setFormData({ ...formData, costPrice: parseFloat(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      costPrice: parseFloat(e.target.value) || 0,
+                    })
+                  }
                   onBlur={calculateProfitMargin}
                 />
               </div>
@@ -520,7 +656,12 @@ export default function EnhancedProductDialog({
                   type="number"
                   placeholder="0.00"
                   value={formData.unitPrice}
-                  onChange={(e) => setFormData({ ...formData, unitPrice: parseFloat(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      unitPrice: parseFloat(e.target.value) || 0,
+                    })
+                  }
                   onBlur={calculateProfitMargin}
                 />
               </div>
@@ -532,9 +673,18 @@ export default function EnhancedProductDialog({
                     type="number"
                     placeholder="0.00"
                     value={formData.profitMargin}
-                    onChange={(e) => setFormData({ ...formData, profitMargin: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        profitMargin: parseFloat(e.target.value) || 0,
+                      })
+                    }
                   />
-                  <Button type="button" variant="outline" onClick={updatePriceFromMargin}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={updatePriceFromMargin}
+                  >
                     <Calculator className="w-4 h-4" />
                   </Button>
                 </div>
@@ -545,16 +695,22 @@ export default function EnhancedProductDialog({
               <div className="grid grid-cols-3 gap-4 text-sm">
                 <div>
                   <span className="text-muted-foreground">Cost Price:</span>
-                  <div className="font-medium">₹{formData.costPrice.toLocaleString()}</div>
+                  <div className="font-medium">
+                    ₹{formData.costPrice.toLocaleString()}
+                  </div>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Selling Price:</span>
-                  <div className="font-medium">₹{formData.unitPrice.toLocaleString()}</div>
+                  <div className="font-medium">
+                    ₹{formData.unitPrice.toLocaleString()}
+                  </div>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Profit:</span>
                   <div className="font-medium text-green-600">
-                    ₹{(formData.unitPrice - formData.costPrice).toLocaleString()} ({formData.profitMargin.toFixed(1)}%)
+                    ₹
+                    {(formData.unitPrice - formData.costPrice).toLocaleString()}{" "}
+                    ({formData.profitMargin.toFixed(1)}%)
                   </div>
                 </div>
               </div>
@@ -566,9 +722,13 @@ export default function EnhancedProductDialog({
               <Switch
                 id="trackInventory"
                 checked={formData.trackInventory}
-                onCheckedChange={(checked) => setFormData({ ...formData, trackInventory: checked })}
+                onCheckedChange={(checked) =>
+                  setFormData({ ...formData, trackInventory: checked })
+                }
               />
-              <Label htmlFor="trackInventory">Track inventory for this product</Label>
+              <Label htmlFor="trackInventory">
+                Track inventory for this product
+              </Label>
             </div>
 
             {formData.trackInventory && (
@@ -581,7 +741,12 @@ export default function EnhancedProductDialog({
                       type="number"
                       placeholder="0"
                       value={formData.currentStock}
-                      onChange={(e) => setFormData({ ...formData, currentStock: parseInt(e.target.value) || 0 })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          currentStock: parseInt(e.target.value) || 0,
+                        })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
@@ -591,7 +756,12 @@ export default function EnhancedProductDialog({
                       type="number"
                       placeholder="0"
                       value={formData.minStock}
-                      onChange={(e) => setFormData({ ...formData, minStock: parseInt(e.target.value) || 0 })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          minStock: parseInt(e.target.value) || 0,
+                        })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
@@ -601,7 +771,12 @@ export default function EnhancedProductDialog({
                       type="number"
                       placeholder="0"
                       value={formData.maxStock}
-                      onChange={(e) => setFormData({ ...formData, maxStock: parseInt(e.target.value) || 0 })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          maxStock: parseInt(e.target.value) || 0,
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -614,12 +789,24 @@ export default function EnhancedProductDialog({
                       type="number"
                       placeholder="0"
                       value={formData.reorderQuantity}
-                      onChange={(e) => setFormData({ ...formData, reorderQuantity: parseInt(e.target.value) || 0 })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          reorderQuantity: parseInt(e.target.value) || 0,
+                        })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="unitOfMeasurement">Unit of Measurement</Label>
-                    <Select value={formData.unitOfMeasurement} onValueChange={(value) => setFormData({ ...formData, unitOfMeasurement: value })}>
+                    <Label htmlFor="unitOfMeasurement">
+                      Unit of Measurement
+                    </Label>
+                    <Select
+                      value={formData.unitOfMeasurement}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, unitOfMeasurement: value })
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -638,7 +825,12 @@ export default function EnhancedProductDialog({
 
             <div className="space-y-2">
               <Label htmlFor="supplier">Primary Supplier</Label>
-              <Select value={formData.supplier} onValueChange={(value) => setFormData({ ...formData, supplier: value })}>
+              <Select
+                value={formData.supplier}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, supplier: value })
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select supplier" />
                 </SelectTrigger>
@@ -658,18 +850,34 @@ export default function EnhancedProductDialog({
               <Label>Product Images</Label>
               <div
                 className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center"
-                onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                onDrop={async (e) => { e.preventDefault(); e.stopPropagation(); await handleFilesSelected(e.dataTransfer.files); }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onDrop={async (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  await handleFilesSelected(e.dataTransfer.files);
+                }}
                 onClick={() => fileInputRef.current?.click()}
                 role="button"
                 aria-label="Upload Product Images"
               >
                 <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-medium mb-2">Upload Product Images</h3>
+                <h3 className="text-lg font-medium mb-2">
+                  Upload Product Images
+                </h3>
                 <p className="text-muted-foreground mb-4">
                   Drag and drop images here, or click to browse
                 </p>
-                <Button variant="outline" type="button" onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}>
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
+                  }}
+                >
                   <Upload className="w-4 h-4 mr-2" />
                   Choose Files
                 </Button>
@@ -693,8 +901,8 @@ export default function EnhancedProductDialog({
                 <div className="grid grid-cols-4 gap-4">
                   {formData.images.map((image, index) => (
                     <div key={index} className="relative">
-                      <img 
-                        src={image} 
+                      <img
+                        src={image}
                         alt={`Product ${index + 1}`}
                         className="w-full h-24 object-cover rounded border"
                       />
@@ -703,7 +911,9 @@ export default function EnhancedProductDialog({
                         size="sm"
                         className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
                         onClick={() => {
-                          const newImages = formData.images.filter((_, i) => i !== index);
+                          const newImages = formData.images.filter(
+                            (_, i) => i !== index,
+                          );
                           setFormData({ ...formData, images: newImages });
                         }}
                       >
@@ -726,7 +936,12 @@ export default function EnhancedProductDialog({
                   placeholder="0.0"
                   step="0.1"
                   value={formData.weight}
-                  onChange={(e) => setFormData({ ...formData, weight: parseFloat(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      weight: parseFloat(e.target.value) || 0,
+                    })
+                  }
                 />
               </div>
               <div className="space-y-2">
@@ -736,7 +951,12 @@ export default function EnhancedProductDialog({
                   type="number"
                   placeholder="0"
                   value={formData.warrantyPeriod}
-                  onChange={(e) => setFormData({ ...formData, warrantyPeriod: parseInt(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      warrantyPeriod: parseInt(e.target.value) || 0,
+                    })
+                  }
                 />
               </div>
             </div>
@@ -745,42 +965,63 @@ export default function EnhancedProductDialog({
               <Label>Dimensions (cm)</Label>
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor="length" className="text-sm">Length</Label>
+                  <Label htmlFor="length" className="text-sm">
+                    Length
+                  </Label>
                   <Input
                     id="length"
                     type="number"
                     placeholder="0"
                     value={formData.dimensions.length}
-                    onChange={(e) => setFormData({ 
-                      ...formData, 
-                      dimensions: { ...formData.dimensions, length: parseFloat(e.target.value) || 0 }
-                    })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        dimensions: {
+                          ...formData.dimensions,
+                          length: parseFloat(e.target.value) || 0,
+                        },
+                      })
+                    }
                   />
                 </div>
                 <div>
-                  <Label htmlFor="width" className="text-sm">Width</Label>
+                  <Label htmlFor="width" className="text-sm">
+                    Width
+                  </Label>
                   <Input
                     id="width"
                     type="number"
                     placeholder="0"
                     value={formData.dimensions.width}
-                    onChange={(e) => setFormData({ 
-                      ...formData, 
-                      dimensions: { ...formData.dimensions, width: parseFloat(e.target.value) || 0 }
-                    })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        dimensions: {
+                          ...formData.dimensions,
+                          width: parseFloat(e.target.value) || 0,
+                        },
+                      })
+                    }
                   />
                 </div>
                 <div>
-                  <Label htmlFor="height" className="text-sm">Height</Label>
+                  <Label htmlFor="height" className="text-sm">
+                    Height
+                  </Label>
                   <Input
                     id="height"
                     type="number"
                     placeholder="0"
                     value={formData.dimensions.height}
-                    onChange={(e) => setFormData({ 
-                      ...formData, 
-                      dimensions: { ...formData.dimensions, height: parseFloat(e.target.value) || 0 }
-                    })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        dimensions: {
+                          ...formData.dimensions,
+                          height: parseFloat(e.target.value) || 0,
+                        },
+                      })
+                    }
                   />
                 </div>
               </div>
@@ -809,11 +1050,11 @@ export default function EnhancedProductDialog({
                 <Input
                   placeholder="Add tag and press Enter"
                   onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === "Enter") {
                       e.preventDefault();
                       const input = e.target as HTMLInputElement;
                       addTag(input.value.trim());
-                      input.value = '';
+                      input.value = "";
                     }
                   }}
                 />
@@ -821,10 +1062,12 @@ export default function EnhancedProductDialog({
                   type="button"
                   variant="outline"
                   onClick={() => {
-                    const input = document.querySelector('input[placeholder="Add tag and press Enter"]') as HTMLInputElement;
+                    const input = document.querySelector(
+                      'input[placeholder="Add tag and press Enter"]',
+                    ) as HTMLInputElement;
                     if (input) {
                       addTag(input.value.trim());
-                      input.value = '';
+                      input.value = "";
                     }
                   }}
                 >
@@ -839,7 +1082,10 @@ export default function EnhancedProductDialog({
           <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={!formData.name || !formData.sku}>
+          <Button
+            onClick={handleSave}
+            disabled={!formData.name || !formData.sku}
+          >
             <Save className="w-4 h-4 mr-2" />
             {product?.id ? "Update Product" : "Save Product"}
           </Button>
