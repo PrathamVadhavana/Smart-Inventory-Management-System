@@ -1,6 +1,17 @@
 -- Add unique constraints to existing tables
 -- Run this in your Supabase SQL Editor if you get constraint errors
 
+-- Add supplier_name column to products if it doesn't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'products' AND column_name = 'supplier_name'
+    ) THEN
+        ALTER TABLE products ADD COLUMN supplier_name VARCHAR(255);
+    END IF;
+END $$;
+
 -- Add unique constraint to customers.phone if it doesn't exist
 DO $$ 
 BEGIN

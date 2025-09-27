@@ -48,7 +48,9 @@ export default function BulkOperations({
   disabled = false,
 }: BulkOperationsProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [currentOperation, setCurrentOperation] = useState<'edit' | 'delete' | 'import'>('edit');
+  const [currentOperation, setCurrentOperation] = useState<
+    "edit" | "delete" | "import"
+  >("edit");
   const [bulkEditData, setBulkEditData] = useState({
     category: "",
     supplier: "",
@@ -87,7 +89,7 @@ export default function BulkOperations({
 
   const handleBulkDelete = () => {
     if (onBulkDelete && selectedItems.length > 0) {
-      const ids = selectedItems.map(item => item.id);
+      const ids = selectedItems.map((item) => item.id);
       onBulkDelete(ids);
     }
     setDialogOpen(false);
@@ -101,12 +103,13 @@ export default function BulkOperations({
 
       // Simulate import process
       const interval = setInterval(() => {
-        setImportProgress(prev => {
+        setImportProgress((prev) => {
           if (prev >= 100) {
             clearInterval(interval);
             setImporting(false);
-            // Import data from file
-            onImport?.(data);
+            // Import data from file (placeholder until parsing implemented)
+            const parsedData: any[] = [];
+            onImport?.(parsedData);
             setDialogOpen(false);
             return 100;
           }
@@ -121,16 +124,16 @@ export default function BulkOperations({
 iPhone 15 Pro,APL-IP15P-128,1234567890123,Electronics,Apple,129900,100000,45,10,Apple Inc.,Latest iPhone with Pro features
 Sample Product,SMP-001,9876543210987,Electronics,Brand,999,700,50,5,Supplier Name,Sample product description`;
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const blob = new Blob([csvContent], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'product_import_template.csv';
+    a.download = "product_import_template.csv";
     a.click();
     window.URL.revokeObjectURL(url);
   };
 
-  const openDialog = (operation: 'edit' | 'delete' | 'import') => {
+  const openDialog = (operation: "edit" | "delete" | "import") => {
     setCurrentOperation(operation);
     setDialogOpen(true);
   };
@@ -139,13 +142,14 @@ Sample Product,SMP-001,9876543210987,Electronics,Brand,999,700,50,5,Supplier Nam
     <>
       <div className="flex items-center space-x-2">
         <span className="text-sm text-muted-foreground">
-          {selectedItems.length} item{selectedItems.length !== 1 ? 's' : ''} selected
+          {selectedItems.length} item{selectedItems.length !== 1 ? "s" : ""}{" "}
+          selected
         </span>
 
         <Button
           variant="outline"
           size="sm"
-          onClick={() => openDialog('edit')}
+          onClick={() => openDialog("edit")}
           disabled={disabled || selectedItems.length === 0}
         >
           <Edit className="w-3 h-3 mr-1" />
@@ -155,7 +159,7 @@ Sample Product,SMP-001,9876543210987,Electronics,Brand,999,700,50,5,Supplier Nam
         <Button
           variant="outline"
           size="sm"
-          onClick={() => openDialog('delete')}
+          onClick={() => openDialog("delete")}
           disabled={disabled || selectedItems.length === 0}
         >
           <Trash2 className="w-3 h-3 mr-1" />
@@ -165,7 +169,7 @@ Sample Product,SMP-001,9876543210987,Electronics,Brand,999,700,50,5,Supplier Nam
         <Button
           variant="outline"
           size="sm"
-          onClick={() => openDialog('import')}
+          onClick={() => openDialog("import")}
           disabled={disabled}
         >
           <Upload className="w-3 h-3 mr-1" />
@@ -177,23 +181,27 @@ Sample Product,SMP-001,9876543210987,Electronics,Brand,999,700,50,5,Supplier Nam
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>
-              {currentOperation === 'edit' && 'Bulk Edit Products'}
-              {currentOperation === 'delete' && 'Delete Products'}
-              {currentOperation === 'import' && 'Import Products'}
+              {currentOperation === "edit" && "Bulk Edit Products"}
+              {currentOperation === "delete" && "Delete Products"}
+              {currentOperation === "import" && "Import Products"}
             </DialogTitle>
             <DialogDescription>
-              {currentOperation === 'edit' && `Apply changes to ${selectedItems.length} selected product${selectedItems.length !== 1 ? 's' : ''}`}
-              {currentOperation === 'delete' && `This will permanently delete ${selectedItems.length} product${selectedItems.length !== 1 ? 's' : ''}`}
-              {currentOperation === 'import' && 'Import products from CSV or Excel file'}
+              {currentOperation === "edit" &&
+                `Apply changes to ${selectedItems.length} selected product${selectedItems.length !== 1 ? "s" : ""}`}
+              {currentOperation === "delete" &&
+                `This will permanently delete ${selectedItems.length} product${selectedItems.length !== 1 ? "s" : ""}`}
+              {currentOperation === "import" &&
+                "Import products from CSV or Excel file"}
             </DialogDescription>
           </DialogHeader>
 
-          {currentOperation === 'edit' && (
+          {currentOperation === "edit" && (
             <div className="space-y-4">
               <Alert>
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
-                  Only fill in the fields you want to update. Empty fields will be ignored.
+                  Only fill in the fields you want to update. Empty fields will
+                  be ignored.
                 </AlertDescription>
               </Alert>
 
@@ -202,7 +210,9 @@ Sample Product,SMP-001,9876543210987,Electronics,Brand,999,700,50,5,Supplier Nam
                   <Label htmlFor="bulk-category">Category</Label>
                   <Select
                     value={bulkEditData.category}
-                    onValueChange={(value) => setBulkEditData({ ...bulkEditData, category: value })}
+                    onValueChange={(value) =>
+                      setBulkEditData({ ...bulkEditData, category: value })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select category" />
@@ -221,7 +231,9 @@ Sample Product,SMP-001,9876543210987,Electronics,Brand,999,700,50,5,Supplier Nam
                   <Label htmlFor="bulk-supplier">Supplier</Label>
                   <Select
                     value={bulkEditData.supplier}
-                    onValueChange={(value) => setBulkEditData({ ...bulkEditData, supplier: value })}
+                    onValueChange={(value) =>
+                      setBulkEditData({ ...bulkEditData, supplier: value })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select supplier" />
@@ -230,7 +242,9 @@ Sample Product,SMP-001,9876543210987,Electronics,Brand,999,700,50,5,Supplier Nam
                       <SelectItem value="">Don't change</SelectItem>
                       <SelectItem value="Apple Inc.">Apple Inc.</SelectItem>
                       <SelectItem value="Samsung">Samsung</SelectItem>
-                      <SelectItem value="Dell Technologies">Dell Technologies</SelectItem>
+                      <SelectItem value="Dell Technologies">
+                        Dell Technologies
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -241,7 +255,12 @@ Sample Product,SMP-001,9876543210987,Electronics,Brand,999,700,50,5,Supplier Nam
                 <div className="flex gap-2">
                   <Select
                     value={bulkEditData.adjustmentType}
-                    onValueChange={(value) => setBulkEditData({ ...bulkEditData, adjustmentType: value })}
+                    onValueChange={(value) =>
+                      setBulkEditData({
+                        ...bulkEditData,
+                        adjustmentType: value,
+                      })
+                    }
                   >
                     <SelectTrigger className="w-32">
                       <SelectValue />
@@ -253,15 +272,24 @@ Sample Product,SMP-001,9876543210987,Electronics,Brand,999,700,50,5,Supplier Nam
                   </Select>
                   <Input
                     type="number"
-                    placeholder={bulkEditData.adjustmentType === 'percentage' ? '10' : '100'}
+                    placeholder={
+                      bulkEditData.adjustmentType === "percentage"
+                        ? "10"
+                        : "100"
+                    }
                     value={bulkEditData.priceAdjustment}
-                    onChange={(e) => setBulkEditData({ ...bulkEditData, priceAdjustment: e.target.value })}
+                    onChange={(e) =>
+                      setBulkEditData({
+                        ...bulkEditData,
+                        priceAdjustment: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {bulkEditData.adjustmentType === 'percentage'
-                    ? 'Enter percentage increase (+) or decrease (-)'
-                    : 'Enter fixed amount to add (+) or subtract (-)'}
+                  {bulkEditData.adjustmentType === "percentage"
+                    ? "Enter percentage increase (+) or decrease (-)"
+                    : "Enter fixed amount to add (+) or subtract (-)"}
                 </p>
               </div>
 
@@ -269,7 +297,9 @@ Sample Product,SMP-001,9876543210987,Electronics,Brand,999,700,50,5,Supplier Nam
                 <Label htmlFor="bulk-status">Status</Label>
                 <Select
                   value={bulkEditData.status}
-                  onValueChange={(value) => setBulkEditData({ ...bulkEditData, status: value })}
+                  onValueChange={(value) =>
+                    setBulkEditData({ ...bulkEditData, status: value })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select status" />
@@ -285,12 +315,13 @@ Sample Product,SMP-001,9876543210987,Electronics,Brand,999,700,50,5,Supplier Nam
             </div>
           )}
 
-          {currentOperation === 'delete' && (
+          {currentOperation === "delete" && (
             <div className="space-y-4">
               <Alert>
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
-                  This action cannot be undone. The following products will be permanently deleted:
+                  This action cannot be undone. The following products will be
+                  permanently deleted:
                 </AlertDescription>
               </Alert>
 
@@ -305,7 +336,7 @@ Sample Product,SMP-001,9876543210987,Electronics,Brand,999,700,50,5,Supplier Nam
             </div>
           )}
 
-          {currentOperation === 'import' && (
+          {currentOperation === "import" && (
             <div className="space-y-4">
               <Tabs defaultValue="upload">
                 <TabsList>
@@ -317,16 +348,22 @@ Sample Product,SMP-001,9876543210987,Electronics,Brand,999,700,50,5,Supplier Nam
                   {importing ? (
                     <div className="space-y-4">
                       <div className="text-center">
-                        <div className="text-lg font-medium mb-2">Importing products...</div>
+                        <div className="text-lg font-medium mb-2">
+                          Importing products...
+                        </div>
                         <Progress value={importProgress} className="w-full" />
-                        <p className="text-sm text-muted-foreground mt-2">{importProgress}% complete</p>
+                        <p className="text-sm text-muted-foreground mt-2">
+                          {importProgress}% complete
+                        </p>
                       </div>
                     </div>
                   ) : (
                     <div className="space-y-4">
                       <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
                         <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                        <h3 className="text-lg font-medium mb-2">Upload Product File</h3>
+                        <h3 className="text-lg font-medium mb-2">
+                          Upload Product File
+                        </h3>
                         <p className="text-muted-foreground mb-4">
                           Select a CSV or Excel file with product data
                         </p>
@@ -350,7 +387,9 @@ Sample Product,SMP-001,9876543210987,Electronics,Brand,999,700,50,5,Supplier Nam
                       <Alert>
                         <CheckCircle className="h-4 w-4" />
                         <AlertDescription>
-                          Make sure your file includes columns: name, sku, barcode, category, brand, unitPrice, costPrice, currentStock, minStock, supplier
+                          Make sure your file includes columns: name, sku,
+                          barcode, category, brand, unitPrice, costPrice,
+                          currentStock, minStock, supplier
                         </AlertDescription>
                       </Alert>
                     </div>
@@ -360,9 +399,12 @@ Sample Product,SMP-001,9876543210987,Electronics,Brand,999,700,50,5,Supplier Nam
                 <TabsContent value="template" className="space-y-4">
                   <div className="text-center space-y-4">
                     <div>
-                      <h3 className="text-lg font-medium mb-2">Download Import Template</h3>
+                      <h3 className="text-lg font-medium mb-2">
+                        Download Import Template
+                      </h3>
                       <p className="text-muted-foreground">
-                        Download a sample CSV file with the correct format and sample data
+                        Download a sample CSV file with the correct format and
+                        sample data
                       </p>
                     </div>
 
@@ -380,12 +422,10 @@ Sample Product,SMP-001,9876543210987,Electronics,Brand,999,700,50,5,Supplier Nam
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
               Cancel
             </Button>
-            {currentOperation === 'edit' && (
-              <Button onClick={handleBulkEdit}>
-                Apply Changes
-              </Button>
+            {currentOperation === "edit" && (
+              <Button onClick={handleBulkEdit}>Apply Changes</Button>
             )}
-            {currentOperation === 'delete' && (
+            {currentOperation === "delete" && (
               <Button variant="destructive" onClick={handleBulkDelete}>
                 Delete Products
               </Button>

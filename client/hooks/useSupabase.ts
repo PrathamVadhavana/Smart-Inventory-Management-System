@@ -1,116 +1,217 @@
-import { useState, useEffect, useCallback } from 'react'
-import { supabase, Product, Customer, Order, Activity, Supplier } from '@/lib/supabase'
-import { useToast } from '@/hooks/use-toast'
+import { useState, useEffect, useCallback } from "react";
+import {
+  supabase,
+  Product,
+  Customer,
+  Order,
+  Activity,
+  Supplier,
+} from "@/lib/supabase";
+import { useToast } from "@/hooks/use-toast";
+const isSupplierNameColumnError = (error: any) =>
+  Boolean(error) &&
+  (error.code === "42703" ||
+    (typeof error.message === "string" &&
+      error.message.toLowerCase().includes("supplier_name")));
 
 // Products hook
 export const useProducts = () => {
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const { toast } = useToast()
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const fetchProducts = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       const { data, error } = await supabase
-        .from('products')
+        .from("products")
         .select(`*,suppliers ( name )`)
-        .order('created_at', { ascending: false })
+        .order("created_at", { ascending: false });
 
-      if (error) throw error
-      setProducts(data || [])
+      if (error) throw error;
+      const normalized = (data || []).map((product) => ({
+        ...product,
+        supplier_name: product.suppliers?.name ?? product.supplier_name ?? null,
+      }));
+      setProducts(normalized);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch products')
+      setError(err instanceof Error ? err.message : "Failed to fetch products");
       toast({
         title: "Error",
         description: "Failed to fetch products",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const addProduct = async (product: Omit<Product, 'id' | 'created_at' | 'updated_at'>) => {
+  const addProduct = async (
+    product: Omit<Product, "id" | "created_at" | "updated_at">,
+  ) => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .insert([product])
-        .select()
-        .single()
+      const { supplier_name, ...payload } = product as Omit<
+        Product,
+        "id" | "created_at" | "updated_at"
+      > & { supplier_name?: string | null };
+      const supplierValue =
+        supplier_name === undefined ? undefined : (supplier_name ?? null);
+      const insertProduct = async (includeSupplierName: boolean) =>
+        supabase
+          .from("products")
+          .insert([
+            {
+              ...payload,
+              ...(includeSupplierName && supplierValue !== undefined
+                ? { supplier_name: supplierValue }
+                : {}),
+            },
+          ])
+          .select(`*,suppliers ( name )`)
+          .single();
 
-      if (error) throw error
-      setProducts(prev => [data, ...prev])
+      let { data, error } = await insertProduct(supplierValue !== undefined);
+      if (
+        error &&
+        isSupplierNameColumnError(error) &&
+        supplierValue !== undefined
+      ) {
+        ({ data, error } = await insertProduct(false));
+        if (!error && data) {
+          data = {
+            ...data,
+            supplier_name:
+              supplierValue ??
+              data.suppliers?.name ??
+              data.supplier_name ??
+              null,
+          } as typeof data;
+        }
+      }
+
+      if (error) throw error;
+      const enriched = data
+        ? {
+            ...data,
+            supplier_name:
+              supplierValue ??
+              data.suppliers?.name ??
+              data.supplier_name ??
+              null,
+          }
+        : data;
+      setProducts((prev) => (enriched ? [enriched, ...prev] : prev));
       toast({
         title: "Success",
         description: "Product added successfully",
-      })
-      return data
+      });
+      return enriched;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to add product'
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to add product";
       toast({
         title: "Error",
         description: errorMessage,
         variant: "destructive",
-      })
-      throw err
+      });
+      throw err;
     }
-  }
+  };
 
   const updateProduct = async (id: string, updates: Partial<Product>) => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single()
+      const { supplier_name, ...payload } = updates as Partial<Product> & {
+        supplier_name?: string | null;
+      };
+      const supplierValue =
+        supplier_name === undefined ? undefined : (supplier_name ?? null);
+      const executeUpdate = async (includeSupplierName: boolean) =>
+        supabase
+          .from("products")
+          .update({
+            ...payload,
+            ...(includeSupplierName && supplierValue !== undefined
+              ? { supplier_name: supplierValue }
+              : {}),
+          })
+          .eq("id", id)
+          .select(`*,suppliers ( name )`)
+          .single();
 
-      if (error) throw error
-      setProducts(prev => prev.map(p => p.id === id ? data : p))
+      let { data, error } = await executeUpdate(supplierValue !== undefined);
+      if (
+        error &&
+        isSupplierNameColumnError(error) &&
+        supplierValue !== undefined
+      ) {
+        ({ data, error } = await executeUpdate(false));
+        if (!error && data) {
+          data = {
+            ...data,
+            supplier_name:
+              supplierValue ??
+              data.suppliers?.name ??
+              data.supplier_name ??
+              null,
+          } as typeof data;
+        }
+      }
+
+      if (error) throw error;
+      const enriched = data
+        ? {
+            ...data,
+            supplier_name:
+              supplierValue ??
+              data.suppliers?.name ??
+              data.supplier_name ??
+              null,
+          }
+        : data;
+      setProducts((prev) => prev.map((p) => (p.id === id ? enriched || p : p)));
       toast({
         title: "Success",
         description: "Product updated successfully",
-      })
-      return data
+      });
+      return enriched;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update product'
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to update product";
       toast({
         title: "Error",
         description: errorMessage,
         variant: "destructive",
-      })
-      throw err
+      });
+      throw err;
     }
-  }
+  };
 
   const deleteProduct = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', id)
+      const { error } = await supabase.from("products").delete().eq("id", id);
 
-      if (error) throw error
-      setProducts(prev => prev.filter(p => p.id !== id))
+      if (error) throw error;
+      setProducts((prev) => prev.filter((p) => p.id !== id));
       toast({
         title: "Success",
         description: "Product deleted successfully",
-      })
+      });
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to delete product'
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to delete product";
       toast({
         title: "Error",
         description: errorMessage,
         variant: "destructive",
-      })
-      throw err
+      });
+      throw err;
     }
-  }
+  };
 
   useEffect(() => {
-    fetchProducts()
-  }, [])
+    fetchProducts();
+  }, []);
 
   return {
     products,
@@ -120,40 +221,51 @@ export const useProducts = () => {
     addProduct,
     updateProduct,
     deleteProduct,
-  }
-}
+  };
+};
 
 // Suppliers hook
 export function useSuppliers() {
   const { toast } = useToast();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchSuppliers = useCallback(async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("suppliers")
-      .select("*")
-      .order("name", { ascending: true });
+    try {
+      setLoading(true);
+      setError(null);
+      const { data, error } = await supabase
+        .from("suppliers")
+        .select("*")
+        .order("name", { ascending: true });
 
-    if (error) {
-      console.error("Error fetching suppliers:", error);
+      if (error) {
+        throw error;
+      }
+      setSuppliers(data || []);
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Could not fetch suppliers.";
+      setError(errorMessage);
+      console.error("Error fetching suppliers:", err);
       toast({
         title: "Error",
-        description: "Could not fetch suppliers.",
+        description: errorMessage,
         variant: "destructive",
       });
-    } else {
-      setSuppliers(data || []);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [toast]);
 
   useEffect(() => {
     fetchSuppliers();
   }, [fetchSuppliers]);
 
-  const addSupplier = async (supplierData: Omit<Supplier, "id" | "created_at">) => {
+  const addSupplier = async (
+    supplierData: Omit<Supplier, "id" | "created_at">,
+  ) => {
     const { data, error } = await supabase
       .from("suppliers")
       .insert([supplierData])
@@ -178,7 +290,10 @@ export function useSuppliers() {
     return data;
   };
 
-  const updateSupplier = async (id: string, supplierData: Partial<Supplier>) => {
+  const updateSupplier = async (
+    id: string,
+    supplierData: Partial<Supplier>,
+  ) => {
     const { data, error } = await supabase
       .from("suppliers")
       .update(supplierData)
@@ -197,7 +312,7 @@ export function useSuppliers() {
     }
 
     setSuppliers((currentSuppliers) =>
-      currentSuppliers.map((s) => (s.id === id ? data : s))
+      currentSuppliers.map((s) => (s.id === id ? data : s)),
     );
     toast({
       title: "Success",
@@ -220,7 +335,7 @@ export function useSuppliers() {
     }
 
     setSuppliers((currentSuppliers) =>
-      currentSuppliers.filter((s) => s.id !== id)
+      currentSuppliers.filter((s) => s.id !== id),
     );
     toast({
       title: "Success",
@@ -232,6 +347,7 @@ export function useSuppliers() {
   return {
     suppliers,
     loading,
+    error,
     fetchSuppliers,
     addSupplier,
     updateSupplier,
@@ -241,36 +357,50 @@ export function useSuppliers() {
 
 // Customers hook
 export const useCustomers = () => {
-  const [customers, setCustomers] = useState<Customer[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const { toast } = useToast()
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const fetchCustomers = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       const { data, error } = await supabase
-        .from('customers')
-        .select('*')
-        .order('created_at', { ascending: false })
+        .from("customers")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-      if (error) throw error
-      setCustomers(data || [])
+      if (error) throw error;
+      setCustomers(data || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch customers')
+      setError(
+        err instanceof Error ? err.message : "Failed to fetch customers",
+      );
       toast({
         title: "Error",
         description: "Failed to fetch customers",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const addCustomer = async (customer: Omit<Customer, 'id' | 'created_at' | 'updated_at' | 'total_purchases' | 'total_spent' | 'last_purchase' | 'join_date' | 'loyalty_points'>) => {
+  const addCustomer = async (
+    customer: Omit<
+      Customer,
+      | "id"
+      | "created_at"
+      | "updated_at"
+      | "total_purchases"
+      | "total_spent"
+      | "last_purchase"
+      | "join_date"
+      | "loyalty_points"
+    >,
+  ) => {
     try {
-      const now = new Date().toISOString()
+      const now = new Date().toISOString();
       const customerData = {
         ...customer,
         total_purchases: 0,
@@ -278,86 +408,86 @@ export const useCustomers = () => {
         last_purchase: now,
         join_date: now,
         loyalty_points: 0,
-      }
+      };
 
       const { data, error } = await supabase
-        .from('customers')
+        .from("customers")
         .insert([customerData])
         .select()
-        .single()
+        .single();
 
-      if (error) throw error
-      setCustomers(prev => [data, ...prev])
+      if (error) throw error;
+      setCustomers((prev) => [data, ...prev]);
       toast({
         title: "Success",
         description: "Customer added successfully",
-      })
-      return data
+      });
+      return data;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to add customer'
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to add customer";
       toast({
         title: "Error",
         description: errorMessage,
         variant: "destructive",
-      })
-      throw err
+      });
+      throw err;
     }
-  }
+  };
 
   const updateCustomer = async (id: string, updates: Partial<Customer>) => {
     try {
       const { data, error } = await supabase
-        .from('customers')
+        .from("customers")
         .update(updates)
-        .eq('id', id)
+        .eq("id", id)
         .select()
-        .single()
+        .single();
 
-      if (error) throw error
-      setCustomers(prev => prev.map(c => c.id === id ? data : c))
+      if (error) throw error;
+      setCustomers((prev) => prev.map((c) => (c.id === id ? data : c)));
       toast({
         title: "Success",
         description: "Customer updated successfully",
-      })
-      return data
+      });
+      return data;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update customer'
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to update customer";
       toast({
         title: "Error",
         description: errorMessage,
         variant: "destructive",
-      })
-      throw err
+      });
+      throw err;
     }
-  }
+  };
 
   const deleteCustomer = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('customers')
-        .delete()
-        .eq('id', id)
+      const { error } = await supabase.from("customers").delete().eq("id", id);
 
-      if (error) throw error
-      setCustomers(prev => prev.filter(c => c.id !== id))
+      if (error) throw error;
+      setCustomers((prev) => prev.filter((c) => c.id !== id));
       toast({
         title: "Success",
         description: "Customer deleted successfully",
-      })
+      });
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to delete customer'
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to delete customer";
       toast({
         title: "Error",
         description: errorMessage,
         variant: "destructive",
-      })
-      throw err
+      });
+      throw err;
     }
-  }
+  };
 
   useEffect(() => {
-    fetchCustomers()
-  }, [])
+    fetchCustomers();
+  }, []);
 
   return {
     customers,
@@ -367,81 +497,88 @@ export const useCustomers = () => {
     addCustomer,
     updateCustomer,
     deleteCustomer,
-  }
-}
+  };
+};
 
 // Orders hook
 export const useOrders = () => {
-  const [orders, setOrders] = useState<Order[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const { toast } = useToast()
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const fetchOrders = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       const { data, error } = await supabase
-        .from('orders')
-        .select(`
+        .from("orders")
+        .select(
+          `
           *,
           customers (
             name,
             phone,
             email
           )
-        `)
-        .order('created_at', { ascending: false })
+        `,
+        )
+        .order("created_at", { ascending: false });
 
-      if (error) throw error
-      setOrders(data || [])
+      if (error) throw error;
+      setOrders(data || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch orders')
+      setError(err instanceof Error ? err.message : "Failed to fetch orders");
       toast({
         title: "Error",
         description: "Failed to fetch orders",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const addOrder = async (order: Omit<Order, 'id' | 'created_at' | 'updated_at'>) => {
+  const addOrder = async (
+    order: Omit<Order, "id" | "created_at" | "updated_at">,
+  ) => {
     try {
       const { data, error } = await supabase
-        .from('orders')
+        .from("orders")
         .insert([order])
-        .select(`
+        .select(
+          `
           *,
           customers (
             name,
             phone,
             email
           )
-        `)
-        .single()
+        `,
+        )
+        .single();
 
-      if (error) throw error
-      setOrders(prev => [data, ...prev])
+      if (error) throw error;
+      setOrders((prev) => [data, ...prev]);
       toast({
         title: "Success",
         description: "Order created successfully",
-      })
-      return data
+      });
+      return data;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to create order'
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to create order";
       toast({
         title: "Error",
         description: errorMessage,
         variant: "destructive",
-      })
-      throw err
+      });
+      throw err;
     }
-  }
+  };
 
   useEffect(() => {
-    fetchOrders()
-  }, [])
+    fetchOrders();
+  }, []);
 
   return {
     orders,
@@ -449,53 +586,55 @@ export const useOrders = () => {
     error,
     fetchOrders,
     addOrder,
-  }
-}
+  };
+};
 
 // Activities hook
 export const useActivities = () => {
-  const [activities, setActivities] = useState<Activity[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchActivities = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       const { data, error } = await supabase
-        .from('activities')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50)
+        .from("activities")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(50);
 
-      if (error) throw error
-      setActivities(data || [])
+      if (error) throw error;
+      setActivities(data || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch activities')
+      setError(
+        err instanceof Error ? err.message : "Failed to fetch activities",
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const addActivity = async (activity: Omit<Activity, 'id' | 'created_at'>) => {
+  const addActivity = async (activity: Omit<Activity, "id" | "created_at">) => {
     try {
       const { data, error } = await supabase
-        .from('activities')
+        .from("activities")
         .insert([activity])
         .select()
-        .single()
+        .single();
 
-      if (error) throw error
-      setActivities(prev => [data, ...prev.slice(0, 49)]) // Keep only latest 50
-      return data
+      if (error) throw error;
+      setActivities((prev) => [data, ...prev.slice(0, 49)]); // Keep only latest 50
+      return data;
     } catch (err) {
-      console.error('Failed to add activity:', err)
-      throw err
+      console.error("Failed to add activity:", err);
+      throw err;
     }
-  }
+  };
 
   useEffect(() => {
-    fetchActivities()
-  }, [])
+    fetchActivities();
+  }, []);
 
   return {
     activities,
@@ -503,7 +642,5 @@ export const useActivities = () => {
     error,
     fetchActivities,
     addActivity,
-  }
-}
-
-
+  };
+};

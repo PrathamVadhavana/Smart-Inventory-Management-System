@@ -60,6 +60,12 @@ export default function Inventory() {
       supplierName:
         product.suppliers?.name ||
         supplierMap.get(product.supplier_id) ||
+        (typeof (product as any).supplier_name === "string"
+          ? (product as any).supplier_name
+          : undefined) ||
+        (typeof (product as any).supplier === "string"
+          ? (product as any).supplier
+          : undefined) ||
         (product.supplier_id ? "Loading..." : "N/A"),
     }));
   }, [products, suppliers]);
@@ -211,6 +217,32 @@ export default function Inventory() {
 
   const handleSaveProduct = async (productData: any, productId?: string) => {
     try {
+      const normalizedSupplierName =
+        typeof productData.supplier === "string"
+          ? productData.supplier.trim()
+          : "";
+      const supplierFromId = productData.supplierId
+        ? suppliers.find((supplier) => supplier.id === productData.supplierId)
+        : null;
+      const supplierFromName =
+        !supplierFromId && normalizedSupplierName
+          ? suppliers.find(
+              (supplier) =>
+                supplier.name.trim().toLowerCase() ===
+                normalizedSupplierName.toLowerCase(),
+            )
+          : null;
+      const resolvedSupplierId =
+        supplierFromId?.id ||
+        productData.supplierId ||
+        supplierFromName?.id ||
+        null;
+      const resolvedSupplierName =
+        supplierFromId?.name ||
+        supplierFromName?.name ||
+        normalizedSupplierName ||
+        null;
+
       // Prepare the data for saving
       const dataToSave = {
         name: productData.name,
@@ -228,7 +260,8 @@ export default function Inventory() {
         track_inventory: productData.trackInventory !== false,
         images: productData.images || [],
         hsn_code: productData.hsnCode || "8517",
-        supplier_id: productData.supplierId || null,
+        supplier_id: resolvedSupplierId,
+        supplier_name: resolvedSupplierName,
       };
 
       // If a productId is provided, it's an update. Otherwise, it's a new product.

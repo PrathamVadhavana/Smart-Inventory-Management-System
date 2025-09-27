@@ -57,10 +57,42 @@ interface Customer {
 }
 
 const defaultProducts = [
-  { id: 1, name: "iPhone 15 Pro", price: 129900, barcode: "1234567890123", stock: 45, minStock: 10, trackInventory: true },
-  { id: 2, name: "Samsung Galaxy S24", price: 89999, barcode: "2345678901234", stock: 32, minStock: 15, trackInventory: true },
-  { id: 3, name: "MacBook Air M3", price: 134900, barcode: "3456789012345", stock: 8, minStock: 5, trackInventory: true },
-  { id: 4, name: "AirPods Pro 2nd Gen", price: 26900, barcode: "4567890123456", stock: 3, minStock: 10, trackInventory: true },
+  {
+    id: 1,
+    name: "iPhone 15 Pro",
+    price: 129900,
+    barcode: "1234567890123",
+    stock: 45,
+    minStock: 10,
+    trackInventory: true,
+  },
+  {
+    id: 2,
+    name: "Samsung Galaxy S24",
+    price: 89999,
+    barcode: "2345678901234",
+    stock: 32,
+    minStock: 15,
+    trackInventory: true,
+  },
+  {
+    id: 3,
+    name: "MacBook Air M3",
+    price: 134900,
+    barcode: "3456789012345",
+    stock: 8,
+    minStock: 5,
+    trackInventory: true,
+  },
+  {
+    id: 4,
+    name: "AirPods Pro 2nd Gen",
+    price: 26900,
+    barcode: "4567890123456",
+    stock: 3,
+    minStock: 10,
+    trackInventory: true,
+  },
 ];
 
 export default function POS() {
@@ -68,7 +100,9 @@ export default function POS() {
   const { customers } = useCustomers();
   const { addOrder } = useOrders();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null,
+  );
   const [discount, setDiscount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("");
   const [cardDetails, setCardDetails] = useState({
@@ -90,13 +124,13 @@ export default function POS() {
   // Load last order from localStorage
   useEffect(() => {
     try {
-      const ordersRaw = localStorage.getItem('pos_orders');
+      const ordersRaw = localStorage.getItem("pos_orders");
       const orders = ordersRaw ? JSON.parse(ordersRaw) : [];
       if (orders.length > 0) {
         setLastOrder(orders[orders.length - 1]); // Get the most recent order
       }
     } catch (error) {
-      console.error('Error loading last order:', error);
+      console.error("Error loading last order:", error);
     }
   }, []);
 
@@ -104,16 +138,16 @@ export default function POS() {
   // Load last order from localStorage for now
   useEffect(() => {
     try {
-      const ordersRaw = localStorage.getItem('pos_orders');
+      const ordersRaw = localStorage.getItem("pos_orders");
       const orders = ordersRaw ? JSON.parse(ordersRaw) : [];
       if (orders.length > 0) {
         setLastOrder(orders[0]);
       }
-    } catch { }
+    } catch {}
   }, []);
 
   const handleBarcodeScanned = (barcode: string) => {
-    const product = availableProducts.find(p => p.barcode === barcode);
+    const product = availableProducts.find((p) => p.barcode === barcode);
     if (product) {
       addProductToCart(product, 1);
     } else {
@@ -126,7 +160,9 @@ export default function POS() {
   };
 
   const addProductToCart = (product: any, quantity: number) => {
-    const existingItem = cartItems.find(item => item.barcode === product.barcode);
+    const existingItem = cartItems.find(
+      (item) => item.barcode === product.barcode,
+    );
     const currentStock = product.current_stock || 0;
 
     // Check if product has stock tracking enabled
@@ -160,7 +196,10 @@ export default function POS() {
             description: `Only ${availableToAdd} more ${product.name} can be added. Adding ${availableToAdd} instead of ${quantity}.`,
             variant: "default",
           });
-          updateQuantity(existingItem.id, existingItem.quantity + availableToAdd);
+          updateQuantity(
+            existingItem.id,
+            existingItem.quantity + availableToAdd,
+          );
           return;
         }
       }
@@ -185,7 +224,7 @@ export default function POS() {
         barcode: product.barcode,
         image: product.images?.[0],
       };
-      setCartItems(items => [...items, newItem]);
+      setCartItems((items) => [...items, newItem]);
     }
   };
 
@@ -196,9 +235,11 @@ export default function POS() {
     }
 
     // Find the cart item and check stock
-    const cartItem = cartItems.find(item => item.id === id);
+    const cartItem = cartItems.find((item) => item.id === id);
     if (cartItem) {
-      const product = availableProducts.find(p => p.barcode === cartItem.barcode);
+      const product = availableProducts.find(
+        (p) => p.barcode === cartItem.barcode,
+      );
       if (product) {
         const currentStock = product.current_stock || 0;
         const trackInventory = product.track_inventory === true;
@@ -215,15 +256,15 @@ export default function POS() {
       }
     }
 
-    setCartItems(items =>
-      items.map(item =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
+    setCartItems((items) =>
+      items.map((item) =>
+        item.id === id ? { ...item, quantity: newQuantity } : item,
+      ),
     );
   };
 
   const removeItem = (id: number) => {
-    setCartItems(items => items.filter(item => item.id !== id));
+    setCartItems((items) => items.filter((item) => item.id !== id));
   };
 
   const clearCart = () => {
@@ -232,7 +273,10 @@ export default function POS() {
     setPaymentMethod("");
   };
 
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  );
   const discountAmount = (subtotal * discount) / 100;
   const taxRate = 18; // GST 18%
   const taxAmount = ((subtotal - discountAmount) * taxRate) / 100;
@@ -254,40 +298,40 @@ export default function POS() {
         // Validate and format bill data
         const billData = {
           billNumber: `INV-${lastOrder.id}`,
-          date: new Date(lastOrder.createdAt).toLocaleDateString('en-IN'),
+          date: new Date(lastOrder.createdAt).toLocaleDateString("en-IN"),
           customer: {
-            name: lastOrder.customer?.name || 'Guest Customer',
-            phone: lastOrder.customer?.phone || '-',
+            name: lastOrder.customer?.name || "Guest Customer",
+            phone: lastOrder.customer?.phone || "-",
             email: lastOrder.customer?.email || undefined,
             address: lastOrder.customer?.address || undefined,
             gstNumber: lastOrder.customer?.gstNumber || undefined,
           },
           items: (lastOrder.items || []).map((item: any) => ({
-            name: item.name || 'Unknown Product',
+            name: item.name || "Unknown Product",
             quantity: Number(item.quantity) || 1,
             price: Number(item.price) || 0,
             total: Number(item.price) * Number(item.quantity) || 0,
-            hsnCode: item.hsnCode || '8517',
+            hsnCode: item.hsnCode || "8517",
           })),
           subtotal: Number(lastOrder.subtotal) || 0,
           discount: Number(lastOrder.discountPercent) || 0,
           taxRate: Number(lastOrder.taxRate) || 18,
           taxAmount: Number(lastOrder.taxAmount) || 0,
           total: Number(lastOrder.total) || 0,
-          paymentMethod: lastOrder.paymentMethod || 'Cash',
+          paymentMethod: lastOrder.paymentMethod || "Cash",
         };
 
         // Validate required data
         if (!billData.items.length) {
-          throw new Error('No items found in the bill');
+          throw new Error("No items found in the bill");
         }
 
         if (billData.total <= 0) {
-          throw new Error('Invalid total amount');
+          throw new Error("Invalid total amount");
         }
 
         // Debug: Log the bill data
-        console.log('Bill data for printing:', billData);
+        console.log("Bill data for printing:", billData);
 
         const billGenerator = new BillGenerator();
 
@@ -296,7 +340,7 @@ export default function POS() {
           try {
             billGenerator.printBill(billData);
           } catch (printError) {
-            console.error('Print error in setTimeout:', printError);
+            console.error("Print error in setTimeout:", printError);
             throw printError;
           }
         }, 100);
@@ -306,10 +350,13 @@ export default function POS() {
           description: "Bill has been sent to printer successfully.",
         });
       } catch (error) {
-        console.error('Error printing bill:', error);
+        console.error("Error printing bill:", error);
         toast({
           title: "Print Error",
-          description: error instanceof Error ? error.message : "Failed to print bill. Please try again.",
+          description:
+            error instanceof Error
+              ? error.message
+              : "Failed to print bill. Please try again.",
           variant: "destructive",
         });
       }
@@ -328,40 +375,40 @@ export default function POS() {
         // Validate and format bill data
         const billData = {
           billNumber: `INV-${lastOrder.id}`,
-          date: new Date(lastOrder.createdAt).toLocaleDateString('en-IN'),
+          date: new Date(lastOrder.createdAt).toLocaleDateString("en-IN"),
           customer: {
-            name: lastOrder.customer?.name || 'Guest Customer',
-            phone: lastOrder.customer?.phone || '-',
+            name: lastOrder.customer?.name || "Guest Customer",
+            phone: lastOrder.customer?.phone || "-",
             email: lastOrder.customer?.email || undefined,
             address: lastOrder.customer?.address || undefined,
             gstNumber: lastOrder.customer?.gstNumber || undefined,
           },
           items: (lastOrder.items || []).map((item: any) => ({
-            name: item.name || 'Unknown Product',
+            name: item.name || "Unknown Product",
             quantity: Number(item.quantity) || 1,
             price: Number(item.price) || 0,
             total: Number(item.price) * Number(item.quantity) || 0,
-            hsnCode: item.hsnCode || '8517',
+            hsnCode: item.hsnCode || "8517",
           })),
           subtotal: Number(lastOrder.subtotal) || 0,
           discount: Number(lastOrder.discountPercent) || 0,
           taxRate: Number(lastOrder.taxRate) || 18,
           taxAmount: Number(lastOrder.taxAmount) || 0,
           total: Number(lastOrder.total) || 0,
-          paymentMethod: lastOrder.paymentMethod || 'Cash',
+          paymentMethod: lastOrder.paymentMethod || "Cash",
         };
 
         // Validate required data
         if (!billData.items.length) {
-          throw new Error('No items found in the bill');
+          throw new Error("No items found in the bill");
         }
 
         if (billData.total <= 0) {
-          throw new Error('Invalid total amount');
+          throw new Error("Invalid total amount");
         }
 
         // Debug: Log the bill data
-        console.log('Bill data for download:', billData);
+        console.log("Bill data for download:", billData);
 
         const billGenerator = new BillGenerator();
 
@@ -370,7 +417,7 @@ export default function POS() {
           try {
             billGenerator.downloadBill(billData);
           } catch (downloadError) {
-            console.error('Download error in setTimeout:', downloadError);
+            console.error("Download error in setTimeout:", downloadError);
             throw downloadError;
           }
         }, 100);
@@ -380,10 +427,13 @@ export default function POS() {
           description: "Bill PDF has been downloaded successfully.",
         });
       } catch (error) {
-        console.error('Error downloading bill:', error);
+        console.error("Error downloading bill:", error);
         toast({
           title: "Download Error",
-          description: error instanceof Error ? error.message : "Failed to download bill. Please try again.",
+          description:
+            error instanceof Error
+              ? error.message
+              : "Failed to download bill. Please try again.",
           variant: "destructive",
         });
       }
@@ -410,13 +460,18 @@ export default function POS() {
     setShowPaymentConfirmation(true);
   };
 
-  const confirmPayment = () => {
+  const confirmPayment = async () => {
     setShowPaymentConfirmation(false);
 
     // Basic validation per payment method
-    if (paymentMethod === 'card') {
-      const cleanNum = cardDetails.number.replace(/\s+/g, '');
-      if (!cardDetails.holder || cleanNum.length < 12 || !cardDetails.expiry || cardDetails.cvv.length < 3) {
+    if (paymentMethod === "card") {
+      const cleanNum = cardDetails.number.replace(/\s+/g, "");
+      if (
+        !cardDetails.holder ||
+        cleanNum.length < 12 ||
+        !cardDetails.expiry ||
+        cardDetails.cvv.length < 3
+      ) {
         toast({
           title: "Invalid Card Details",
           description: "Please enter valid card details",
@@ -425,7 +480,7 @@ export default function POS() {
         return;
       }
     }
-    if (paymentMethod === 'upi') {
+    if (paymentMethod === "upi") {
       if (!upiDetails.vpa || !/^[\w.\-]+@[\w.\-]+$/.test(upiDetails.vpa)) {
         toast({
           title: "Invalid UPI ID",
@@ -442,17 +497,72 @@ export default function POS() {
       selectedCustomer,
       discount,
       18, // GST rate
-      paymentMethod
+      paymentMethod,
     );
 
     const billGenerator = new BillGenerator();
 
-    // Persist order for dashboard analytics
+    // Save order to Supabase database first
+    const saveOrderToDatabase = async () => {
+      try {
+        const orderItems = cartItems.map((item) => ({
+          product_id: item.id.toString(),
+          product_name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+          total: item.price * item.quantity,
+        }));
+
+        const orderData = {
+          customer_id: selectedCustomer?.id || null,
+          items: orderItems,
+          subtotal,
+          discount_percent: discount,
+          discount_amount: discountAmount,
+          tax_rate: taxRate,
+          tax_amount: taxAmount,
+          total,
+          payment_method: paymentMethod,
+          payment_details:
+            paymentMethod === "card"
+              ? {
+                  holder: cardDetails.holder,
+                  last4: cardDetails.number.replace(/\s+/g, "").slice(-4),
+                  expiry: cardDetails.expiry,
+                }
+              : paymentMethod === "upi"
+                ? {
+                    vpa: upiDetails.vpa,
+                  }
+                : null,
+        };
+
+        // Save to Supabase database
+        const savedOrder = await addOrder(orderData);
+        console.log("Order saved to database:", savedOrder);
+
+        return savedOrder;
+      } catch (error) {
+        console.error("Error saving order to database:", error);
+        toast({
+          title: "Database Save Warning",
+          description:
+            "Order completed but may not appear in Bills immediately. Data saved locally.",
+          variant: "destructive",
+        });
+        return null;
+      }
+    };
+
+    // Save to database
+    const savedOrder = await saveOrderToDatabase();
+
+    // Persist order for dashboard analytics (localStorage backup)
     try {
-      const ordersRaw = localStorage.getItem('pos_orders');
+      const ordersRaw = localStorage.getItem("pos_orders");
       const orders = ordersRaw ? JSON.parse(ordersRaw) : [];
       const order = {
-        id: Date.now(),
+        id: savedOrder?.id || Date.now(),
         createdAt: new Date().toISOString(),
         items: cartItems,
         subtotal,
@@ -462,40 +572,55 @@ export default function POS() {
         taxAmount,
         total,
         paymentMethod,
-        paymentDetails: paymentMethod === 'card' ? {
-          holder: cardDetails.holder,
-          last4: cardDetails.number.replace(/\s+/g, '').slice(-4),
-          expiry: cardDetails.expiry,
-        } : paymentMethod === 'upi' ? {
-          vpa: upiDetails.vpa,
-        } : undefined,
+        paymentDetails:
+          paymentMethod === "card"
+            ? {
+                holder: cardDetails.holder,
+                last4: cardDetails.number.replace(/\s+/g, "").slice(-4),
+                expiry: cardDetails.expiry,
+              }
+            : paymentMethod === "upi"
+              ? {
+                  vpa: upiDetails.vpa,
+                }
+              : undefined,
         customer: selectedCustomer,
       };
-      localStorage.setItem('pos_orders', JSON.stringify([order, ...orders].slice(0, 200)));
+      localStorage.setItem(
+        "pos_orders",
+        JSON.stringify([order, ...orders].slice(0, 200)),
+      );
 
       // Update lastOrder state
       setLastOrder(order);
 
       // Append recent activity
-      const activityRaw = localStorage.getItem('recent_activity');
+      const activityRaw = localStorage.getItem("recent_activity");
       const activity = activityRaw ? JSON.parse(activityRaw) : [];
       activity.unshift({
         id: order.id,
-        type: 'sale',
+        type: "sale",
         message: `Sale completed - ${cartItems.length} item(s)`,
         amount: `₹${total.toLocaleString()}`,
         time: new Date().toLocaleTimeString(),
       });
-      localStorage.setItem('recent_activity', JSON.stringify(activity.slice(0, 50)));
+      localStorage.setItem(
+        "recent_activity",
+        JSON.stringify(activity.slice(0, 50)),
+      );
 
       // Persist/update customer in customer database
       if (selectedCustomer) {
         try {
-          const customersRaw = localStorage.getItem('app_customers');
+          const customersRaw = localStorage.getItem("app_customers");
           const customers = customersRaw ? JSON.parse(customersRaw) : [];
 
-          const existingIndex = customers.findIndex((c: any) => c.id === selectedCustomer.id || c.phone === selectedCustomer.phone);
-          const today = new Date().toISOString().split('T')[0];
+          const existingIndex = customers.findIndex(
+            (c: any) =>
+              c.id === selectedCustomer.id ||
+              c.phone === selectedCustomer.phone,
+          );
+          const today = new Date().toISOString().split("T")[0];
           const loyaltyEarned = Math.floor(total / 100); // 1 point per ₹100
 
           if (existingIndex >= 0) {
@@ -527,10 +652,10 @@ export default function POS() {
             });
           }
 
-          localStorage.setItem('app_customers', JSON.stringify(customers));
-        } catch { }
+          localStorage.setItem("app_customers", JSON.stringify(customers));
+        } catch {}
       }
-    } catch { }
+    } catch {}
 
     // Generate and download the bill
     billGenerator.downloadBill(billData);
@@ -564,7 +689,7 @@ export default function POS() {
       selectedCustomer,
       discount,
       18, // GST rate
-      paymentMethod || "Cash"
+      paymentMethod || "Cash",
     );
 
     const billGenerator = new BillGenerator();
@@ -588,22 +713,42 @@ export default function POS() {
             <div className="flex items-center space-x-3">
               {lastOrder && (
                 <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm" onClick={viewLastBill} className="border-slate-300 hover:bg-slate-50 rounded-lg transition-colors">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={viewLastBill}
+                    className="border-slate-300 hover:bg-slate-50 rounded-lg transition-colors"
+                  >
                     <FileText className="w-4 h-4 mr-2" />
                     View Last Bill
                   </Button>
-                  <Button variant="outline" size="sm" onClick={reprintLastBill} className="border-slate-300 hover:bg-slate-50 rounded-lg transition-colors">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={reprintLastBill}
+                    className="border-slate-300 hover:bg-slate-50 rounded-lg transition-colors"
+                  >
                     <Printer className="w-4 h-4 mr-2" />
                     Reprint
                   </Button>
-                  <Button variant="outline" size="sm" onClick={downloadLastBill} className="border-slate-300 hover:bg-slate-50 rounded-lg transition-colors">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={downloadLastBill}
+                    className="border-slate-300 hover:bg-slate-50 rounded-lg transition-colors"
+                  >
                     <Download className="w-4 h-4 mr-2" />
                     Download
                   </Button>
                 </div>
               )}
               {cartItems.length > 0 && (
-                <Button variant="outline" size="sm" onClick={clearCart} className="border-red-300 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearCart}
+                  className="border-red-300 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                >
                   <Trash2 className="w-4 h-4 mr-2" />
                   Clear Cart
                 </Button>
@@ -657,7 +802,10 @@ export default function POS() {
                 <div className="space-y-4">
                   <ProductSearchDialog
                     trigger={
-                      <Button variant="outline" className="w-full h-12 rounded-lg border-slate-300 hover:bg-slate-50 transition-colors">
+                      <Button
+                        variant="outline"
+                        className="w-full h-12 rounded-lg border-slate-300 hover:bg-slate-50 transition-colors"
+                      >
                         <Search className="w-5 h-5 mr-2" />
                         Browse Products
                       </Button>
@@ -698,7 +846,7 @@ export default function POS() {
                   </div>
                   {cartItems.length > 0 && (
                     <span className="bg-white/20 px-3 py-1 rounded-full text-sm">
-                      {cartItems.length} item{cartItems.length !== 1 ? 's' : ''}
+                      {cartItems.length} item{cartItems.length !== 1 ? "s" : ""}
                     </span>
                   )}
                 </CardTitle>
@@ -709,47 +857,81 @@ export default function POS() {
                     <div className="w-20 h-20 mx-auto mb-4 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
                       <ShoppingCart className="w-10 h-10 text-slate-400" />
                     </div>
-                    <h3 className="text-lg font-semibold text-slate-600 dark:text-slate-400 mb-2">Your cart is empty</h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-500">Start scanning products or browse our catalog to add items</p>
+                    <h3 className="text-lg font-semibold text-slate-600 dark:text-slate-400 mb-2">
+                      Your cart is empty
+                    </h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-500">
+                      Start scanning products or browse our catalog to add items
+                    </p>
                   </div>
                 ) : (
                   <div className="overflow-hidden">
                     <Table>
                       <TableHeader>
                         <TableRow className="border-slate-200 dark:border-slate-700">
-                          <TableHead className="font-semibold">Product</TableHead>
-                          <TableHead className="font-semibold text-right">Price</TableHead>
-                          <TableHead className="font-semibold text-center">Quantity</TableHead>
-                          <TableHead className="font-semibold text-right">Total</TableHead>
+                          <TableHead className="font-semibold">
+                            Product
+                          </TableHead>
+                          <TableHead className="font-semibold text-right">
+                            Price
+                          </TableHead>
+                          <TableHead className="font-semibold text-center">
+                            Quantity
+                          </TableHead>
+                          <TableHead className="font-semibold text-right">
+                            Total
+                          </TableHead>
                           <TableHead className="w-12"></TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {cartItems.map((item) => (
-                          <TableRow key={item.id} className="border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                          <TableRow
+                            key={item.id}
+                            className="border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                          >
                             <TableCell>
                               <div className="flex items-center space-x-3">
                                 {item.image ? (
-                                  <img src={item.image} alt={item.name} className="w-12 h-12 rounded-lg object-cover border border-slate-200" />
+                                  <img
+                                    src={item.image}
+                                    alt={item.name}
+                                    className="w-12 h-12 rounded-lg object-cover border border-slate-200"
+                                  />
                                 ) : (
                                   <div className="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center">
                                     <Package className="w-6 h-6 text-slate-400" />
                                   </div>
                                 )}
                                 <div>
-                                  <span className="font-medium text-slate-900 dark:text-slate-100">{item.name}</span>
+                                  <span className="font-medium text-slate-900 dark:text-slate-100">
+                                    {item.name}
+                                  </span>
                                   {(() => {
-                                    const product = availableProducts.find(p => p.barcode === item.barcode);
+                                    const product = availableProducts.find(
+                                      (p) => p.barcode === item.barcode,
+                                    );
                                     if (product) {
-                                      const currentStock = product.current_stock || 0;
-                                      const trackInventory = product.track_inventory === true;
-                                      if (trackInventory && currentStock <= (product.min_stock || 0)) {
+                                      const currentStock =
+                                        product.current_stock || 0;
+                                      const trackInventory =
+                                        product.track_inventory === true;
+                                      if (
+                                        trackInventory &&
+                                        currentStock <= (product.min_stock || 0)
+                                      ) {
                                         return (
                                           <div className="text-xs text-red-600 font-medium">
-                                            {currentStock === 0 ? "Out of stock" : `Only ${currentStock} left`}
+                                            {currentStock === 0
+                                              ? "Out of stock"
+                                              : `Only ${currentStock} left`}
                                           </div>
                                         );
-                                      } else if (trackInventory && currentStock <= (product.min_stock || 0) * 2) {
+                                      } else if (
+                                        trackInventory &&
+                                        currentStock <=
+                                          (product.min_stock || 0) * 2
+                                      ) {
                                         return (
                                           <div className="text-xs text-yellow-600 font-medium">
                                             Low stock ({currentStock} left)
@@ -770,16 +952,22 @@ export default function POS() {
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                  onClick={() =>
+                                    updateQuantity(item.id, item.quantity - 1)
+                                  }
                                   className="w-8 h-8 p-0 border-slate-300 hover:bg-slate-100 rounded-md"
                                 >
                                   <Minus className="w-3 h-3" />
                                 </Button>
-                                <span className="w-8 text-center font-medium text-slate-900 dark:text-slate-100">{item.quantity}</span>
+                                <span className="w-8 text-center font-medium text-slate-900 dark:text-slate-100">
+                                  {item.quantity}
+                                </span>
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                  onClick={() =>
+                                    updateQuantity(item.id, item.quantity + 1)
+                                  }
                                   className="w-8 h-8 p-0 border-slate-300 hover:bg-slate-100 rounded-md"
                                 >
                                   <Plus className="w-3 h-3" />
@@ -826,11 +1014,18 @@ export default function POS() {
                 <div className="bg-slate-50 dark:bg-slate-700 rounded-xl p-4 space-y-3 border border-slate-200/60 dark:border-slate-600/60">
                   <div className="flex justify-between items-center text-slate-600 dark:text-slate-400">
                     <span>Subtotal</span>
-                    <span className="font-medium">{formatCurrency(subtotal)}</span>
+                    <span className="font-medium">
+                      {formatCurrency(subtotal)}
+                    </span>
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <Label htmlFor="discount" className="text-slate-600 dark:text-slate-400">Discount (%)</Label>
+                    <Label
+                      htmlFor="discount"
+                      className="text-slate-600 dark:text-slate-400"
+                    >
+                      Discount (%)
+                    </Label>
                     <Input
                       id="discount"
                       type="number"
@@ -850,25 +1045,46 @@ export default function POS() {
 
                   <div className="flex justify-between items-center text-slate-600 dark:text-slate-400">
                     <span>GST (18%)</span>
-                    <span className="font-medium">{formatCurrency(taxAmount)}</span>
+                    <span className="font-medium">
+                      {formatCurrency(taxAmount)}
+                    </span>
                   </div>
 
                   <div className="border-t border-slate-300 dark:border-slate-600 pt-3">
                     <div className="flex justify-between text-xl font-bold text-slate-900 dark:text-slate-100">
                       <span>Total Amount</span>
-                      <span className="text-emerald-600">{formatCurrency(total)}</span>
+                      <span className="text-emerald-600">
+                        {formatCurrency(total)}
+                      </span>
                     </div>
                   </div>
                 </div>
 
                 {/* Payment Method Selection */}
                 <div className="space-y-4">
-                  <Label className="text-slate-700 dark:text-slate-300 font-semibold">Payment Method</Label>
+                  <Label className="text-slate-700 dark:text-slate-300 font-semibold">
+                    Payment Method
+                  </Label>
                   <div className="grid grid-cols-3 gap-3">
                     {[
-                      { id: "card", label: "Card", icon: CreditCard, color: "from-blue-500 to-blue-600" },
-                      { id: "cash", label: "Cash", icon: null, color: "from-green-500 to-green-600" },
-                      { id: "upi", label: "UPI", icon: null, color: "from-purple-500 to-purple-600" },
+                      {
+                        id: "card",
+                        label: "Card",
+                        icon: CreditCard,
+                        color: "from-blue-500 to-blue-600",
+                      },
+                      {
+                        id: "cash",
+                        label: "Cash",
+                        icon: null,
+                        color: "from-green-500 to-green-600",
+                      },
+                      {
+                        id: "upi",
+                        label: "UPI",
+                        icon: null,
+                        color: "from-purple-500 to-purple-600",
+                      },
                     ].map((method) => {
                       const Icon = method.icon;
                       const isSelected = paymentMethod === method.id;
@@ -876,10 +1092,11 @@ export default function POS() {
                         <Button
                           key={method.id}
                           variant={isSelected ? "default" : "outline"}
-                          className={`h-14 rounded-xl relative overflow-hidden transition-all ${isSelected
-                            ? `bg-gradient-to-r ${method.color} text-white border-0 shadow-lg`
-                            : "border-slate-300 hover:bg-slate-50"
-                            }`}
+                          className={`h-14 rounded-xl relative overflow-hidden transition-all ${
+                            isSelected
+                              ? `bg-gradient-to-r ${method.color} text-white border-0 shadow-lg`
+                              : "border-slate-300 hover:bg-slate-50"
+                          }`}
                           onClick={() => setPaymentMethod(method.id)}
                         >
                           {Icon && <Icon className="w-5 h-5 mr-2" />}
@@ -894,35 +1111,57 @@ export default function POS() {
                 </div>
 
                 {/* Payment Details */}
-                {paymentMethod === 'card' && (
+                {paymentMethod === "card" && (
                   <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 space-y-4">
-                    <Label className="text-blue-700 dark:text-blue-300 font-semibold">Card Details</Label>
+                    <Label className="text-blue-700 dark:text-blue-300 font-semibold">
+                      Card Details
+                    </Label>
                     <div className="space-y-3">
                       <Input
                         placeholder="Cardholder Name"
                         value={cardDetails.holder}
-                        onChange={(e) => setCardDetails({ ...cardDetails, holder: e.target.value })}
+                        onChange={(e) =>
+                          setCardDetails({
+                            ...cardDetails,
+                            holder: e.target.value,
+                          })
+                        }
                         className="border-blue-300 focus:border-blue-500"
                       />
                       <Input
                         placeholder="Card Number"
                         inputMode="numeric"
                         value={cardDetails.number}
-                        onChange={(e) => setCardDetails({ ...cardDetails, number: e.target.value.replace(/[^0-9\s]/g, '') })}
+                        onChange={(e) =>
+                          setCardDetails({
+                            ...cardDetails,
+                            number: e.target.value.replace(/[^0-9\s]/g, ""),
+                          })
+                        }
                         className="border-blue-300 focus:border-blue-500"
                       />
                       <div className="grid grid-cols-2 gap-3">
                         <Input
                           placeholder="MM/YY"
                           value={cardDetails.expiry}
-                          onChange={(e) => setCardDetails({ ...cardDetails, expiry: e.target.value })}
+                          onChange={(e) =>
+                            setCardDetails({
+                              ...cardDetails,
+                              expiry: e.target.value,
+                            })
+                          }
                           className="border-blue-300 focus:border-blue-500"
                         />
                         <Input
                           placeholder="CVV"
                           inputMode="numeric"
                           value={cardDetails.cvv}
-                          onChange={(e) => setCardDetails({ ...cardDetails, cvv: e.target.value.replace(/[^0-9]/g, '') })}
+                          onChange={(e) =>
+                            setCardDetails({
+                              ...cardDetails,
+                              cvv: e.target.value.replace(/[^0-9]/g, ""),
+                            })
+                          }
                           className="border-blue-300 focus:border-blue-500"
                         />
                       </div>
@@ -930,26 +1169,32 @@ export default function POS() {
                   </div>
                 )}
 
-                {paymentMethod === 'upi' && (
+                {paymentMethod === "upi" && (
                   <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-4 space-y-4">
-                    <Label className="text-purple-700 dark:text-purple-300 font-semibold">UPI Payment</Label>
+                    <Label className="text-purple-700 dark:text-purple-300 font-semibold">
+                      UPI Payment
+                    </Label>
                     <div className="space-y-4">
                       <Input
                         placeholder="UPI ID (e.g., name@bank)"
                         value={upiDetails.vpa}
-                        onChange={(e) => setUpiDetails({ ...upiDetails, vpa: e.target.value })}
+                        onChange={(e) =>
+                          setUpiDetails({ ...upiDetails, vpa: e.target.value })
+                        }
                         className="border-purple-300 focus:border-purple-500"
                       />
                       <div className="flex items-center gap-4">
                         <div className="p-3 border border-purple-300 rounded-lg bg-white">
                           <img
                             alt="UPI QR"
-                            src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent('upi://pay?pa=' + (upiDetails.vpa || 'example@upi') + '&am=' + total + '&tn=POS%20Payment')}`}
+                            src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent("upi://pay?pa=" + (upiDetails.vpa || "example@upi") + "&am=" + total + "&tn=POS%20Payment")}`}
                             className="rounded"
                           />
                         </div>
                         <div className="text-sm text-purple-600 dark:text-purple-400">
-                          <p className="font-medium mb-1">Scan QR with your UPI app</p>
+                          <p className="font-medium mb-1">
+                            Scan QR with your UPI app
+                          </p>
                           <p>Or pay directly to the UPI ID above</p>
                         </div>
                       </div>
@@ -988,7 +1233,9 @@ export default function POS() {
       <Dialog open={showLastBill} onOpenChange={setShowLastBill}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Last Bill - {lastOrder ? `INV-${lastOrder.id}` : ''}</DialogTitle>
+            <DialogTitle>
+              Last Bill - {lastOrder ? `INV-${lastOrder.id}` : ""}
+            </DialogTitle>
           </DialogHeader>
           {lastOrder && (
             <div className="space-y-6">
@@ -997,19 +1244,40 @@ export default function POS() {
                 <div>
                   <h3 className="font-semibold mb-2">Bill Information</h3>
                   <div className="space-y-1 text-sm">
-                    <div><strong>Bill Number:</strong> INV-{lastOrder.id}</div>
-                    <div><strong>Date:</strong> {new Date(lastOrder.createdAt).toLocaleDateString('en-IN')}</div>
-                    <div><strong>Time:</strong> {new Date(lastOrder.createdAt).toLocaleTimeString('en-IN')}</div>
-                    <div><strong>Payment Method:</strong> {lastOrder.paymentMethod}</div>
+                    <div>
+                      <strong>Bill Number:</strong> INV-{lastOrder.id}
+                    </div>
+                    <div>
+                      <strong>Date:</strong>{" "}
+                      {new Date(lastOrder.createdAt).toLocaleDateString(
+                        "en-IN",
+                      )}
+                    </div>
+                    <div>
+                      <strong>Time:</strong>{" "}
+                      {new Date(lastOrder.createdAt).toLocaleTimeString(
+                        "en-IN",
+                      )}
+                    </div>
+                    <div>
+                      <strong>Payment Method:</strong> {lastOrder.paymentMethod}
+                    </div>
                   </div>
                 </div>
                 <div>
                   <h3 className="font-semibold mb-2">Customer Information</h3>
                   <div className="space-y-1 text-sm">
-                    <div><strong>Name:</strong> {lastOrder.customer?.name || 'Guest Customer'}</div>
-                    <div><strong>Phone:</strong> {lastOrder.customer?.phone || '-'}</div>
+                    <div>
+                      <strong>Name:</strong>{" "}
+                      {lastOrder.customer?.name || "Guest Customer"}
+                    </div>
+                    <div>
+                      <strong>Phone:</strong> {lastOrder.customer?.phone || "-"}
+                    </div>
                     {lastOrder.customer?.email && (
-                      <div><strong>Email:</strong> {lastOrder.customer.email}</div>
+                      <div>
+                        <strong>Email:</strong> {lastOrder.customer.email}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -1033,7 +1301,11 @@ export default function POS() {
                         <TableCell>{item.name}</TableCell>
                         <TableCell>{item.quantity}</TableCell>
                         <TableCell>{formatCurrency(item.price)}</TableCell>
-                        <TableCell>{formatCurrency(item.total || item.price * item.quantity)}</TableCell>
+                        <TableCell>
+                          {formatCurrency(
+                            item.total || item.price * item.quantity,
+                          )}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -1050,7 +1322,9 @@ export default function POS() {
                   {lastOrder.discountPercent > 0 && (
                     <div className="flex justify-between text-green-600">
                       <span>Discount ({lastOrder.discountPercent}%):</span>
-                      <span>-{formatCurrency(lastOrder.discountAmount || 0)}</span>
+                      <span>
+                        -{formatCurrency(lastOrder.discountAmount || 0)}
+                      </span>
                     </div>
                   )}
                   <div className="flex justify-between">
@@ -1066,16 +1340,11 @@ export default function POS() {
 
               {/* Actions */}
               <div className="flex justify-end space-x-3 pt-4 border-t">
-                <Button
-                  variant="outline"
-                  onClick={reprintLastBill}
-                >
+                <Button variant="outline" onClick={reprintLastBill}>
                   <Printer className="w-4 h-4 mr-2" />
                   Reprint
                 </Button>
-                <Button
-                  onClick={downloadLastBill}
-                >
+                <Button onClick={downloadLastBill}>
                   <Download className="w-4 h-4 mr-2" />
                   Download PDF
                 </Button>
@@ -1086,7 +1355,10 @@ export default function POS() {
       </Dialog>
 
       {/* Payment Confirmation Dialog */}
-      <Dialog open={showPaymentConfirmation} onOpenChange={setShowPaymentConfirmation}>
+      <Dialog
+        open={showPaymentConfirmation}
+        onOpenChange={setShowPaymentConfirmation}
+      >
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Confirm Payment</DialogTitle>

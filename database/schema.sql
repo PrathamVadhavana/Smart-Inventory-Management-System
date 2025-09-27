@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS products (
     track_inventory BOOLEAN DEFAULT true,
     images TEXT[], -- Array of image URLs
     hsn_code VARCHAR(20),
+    supplier_name VARCHAR(255),
     supplier_id UUID REFERENCES suppliers(id) ON DELETE SET NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -225,7 +226,7 @@ INSERT INTO suppliers (name, contact_person, phone, email, address) VALUES
 ON CONFLICT DO NOTHING;
 
 -- Insert sample products with supplier references
-INSERT INTO products (name, description, sku, barcode, category, unit_price, current_stock, min_stock, track_inventory, hsn_code, supplier_id) 
+INSERT INTO products (name, description, sku, barcode, category, unit_price, current_stock, min_stock, track_inventory, hsn_code, supplier_name, supplier_id) 
 SELECT 
     'iPhone 15 Pro', 
     'Latest iPhone with advanced features', 
@@ -237,11 +238,12 @@ SELECT
     5, 
     true, 
     '8517',
+    'Apple Inc.',
     s.id
 FROM suppliers s WHERE s.name = 'Apple Inc.'
 ON CONFLICT (sku) DO NOTHING;
 
-INSERT INTO products (name, description, sku, barcode, category, unit_price, current_stock, min_stock, track_inventory, hsn_code, supplier_id)
+INSERT INTO products (name, description, sku, barcode, category, unit_price, current_stock, min_stock, track_inventory, hsn_code, supplier_name, supplier_id)
 SELECT 
     'Samsung Galaxy S24', 
     'Premium Android smartphone', 
@@ -253,11 +255,12 @@ SELECT
     3, 
     true, 
     '8517',
+    'Samsung Electronics',
     s.id
 FROM suppliers s WHERE s.name = 'Samsung Electronics'
 ON CONFLICT (sku) DO NOTHING;
 
-INSERT INTO products (name, description, sku, barcode, category, unit_price, current_stock, min_stock, track_inventory, hsn_code, supplier_id)
+INSERT INTO products (name, description, sku, barcode, category, unit_price, current_stock, min_stock, track_inventory, hsn_code, supplier_name, supplier_id)
 SELECT 
     'MacBook Pro M3', 
     'Professional laptop for creators', 
@@ -269,11 +272,12 @@ SELECT
     2, 
     true, 
     '8471',
+    'Apple Inc.',
     s.id
 FROM suppliers s WHERE s.name = 'Apple Inc.'
 ON CONFLICT (sku) DO NOTHING;
 
-INSERT INTO products (name, description, sku, barcode, category, unit_price, current_stock, min_stock, track_inventory, hsn_code, supplier_id)
+INSERT INTO products (name, description, sku, barcode, category, unit_price, current_stock, min_stock, track_inventory, hsn_code, supplier_name, supplier_id)
 SELECT 
     'AirPods Pro', 
     'Wireless earbuds with noise cancellation', 
@@ -285,11 +289,12 @@ SELECT
     5, 
     true, 
     '8518',
+    'Apple Inc.',
     s.id
 FROM suppliers s WHERE s.name = 'Apple Inc.'
 ON CONFLICT (sku) DO NOTHING;
 
-INSERT INTO products (name, description, sku, barcode, category, unit_price, current_stock, min_stock, track_inventory, hsn_code, supplier_id)
+INSERT INTO products (name, description, sku, barcode, category, unit_price, current_stock, min_stock, track_inventory, hsn_code, supplier_name, supplier_id)
 SELECT 
     'Magic Mouse', 
     'Wireless mouse for Mac', 
@@ -301,6 +306,7 @@ SELECT
     10, 
     true, 
     '8471',
+    'Tech Distributors Ltd.',
     s.id
 FROM suppliers s WHERE s.name = 'Tech Distributors Ltd.'
 ON CONFLICT (sku) DO NOTHING;
