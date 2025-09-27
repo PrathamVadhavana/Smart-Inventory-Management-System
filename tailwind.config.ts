@@ -14,14 +14,20 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        heading: ['Poppins', 'system-ui', 'sans-serif'],
+        sans: ["Inter", "system-ui", "sans-serif"],
+        heading: ["Poppins", "system-ui", "sans-serif"],
       },
       fontSize: {
-        'h1': ['clamp(3rem, 5vw, 4rem)', { lineHeight: '1.1', fontWeight: '700' }],
-        'h2': ['clamp(2rem, 3vw, 2.5rem)', { lineHeight: '1.2', fontWeight: '600' }],
-        'body': ['1.125rem', { lineHeight: '1.6' }],
-        'body-sm': ['1rem', { lineHeight: '1.5' }],
+        h1: [
+          "clamp(3rem, 5vw, 4rem)",
+          { lineHeight: "1.1", fontWeight: "700" },
+        ],
+        h2: [
+          "clamp(2rem, 3vw, 2.5rem)",
+          { lineHeight: "1.2", fontWeight: "600" },
+        ],
+        body: ["1.125rem", { lineHeight: "1.6" }],
+        "body-sm": ["1rem", { lineHeight: "1.5" }],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -126,6 +132,10 @@ export default {
         "slide-up": "slide-up 0.5s ease-out",
         "scale-in": "scale-in 0.3s ease-out",
         "pulse-soft": "pulse-soft 2s ease-in-out infinite",
+      },
+      scale: {
+        "102": "1.02",
+        "105": "1.05",
       },
     },
   },

@@ -95,10 +95,24 @@ const defaultProducts = [
   },
 ];
 
+// Helper function to safely get product properties for both Supabase and default products
+const getProductProperty = (
+  product: any,
+  supabaseField: string,
+  defaultField: string,
+  defaultValue: any = 0,
+) => {
+  return product[supabaseField] ?? product[defaultField] ?? defaultValue;
+};
+
 export default function POS() {
   const { products: availableProducts } = useProducts();
   const { customers } = useCustomers();
   const { addOrder } = useOrders();
+
+  // Debug logging for products
+  console.log("Available products from Supabase:", availableProducts);
+  console.log("Sample product structure:", availableProducts?.[0]);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null,
@@ -147,7 +161,11 @@ export default function POS() {
   }, []);
 
   const handleBarcodeScanned = (barcode: string) => {
-    const product = availableProducts.find((p) => p.barcode === barcode);
+    // Use Supabase products if available, otherwise fall back to default products
+    const productsToSearch =
+      availableProducts?.length > 0 ? availableProducts : defaultProducts;
+    const product = productsToSearch.find((p) => p.barcode === barcode);
+
     if (product) {
       addProductToCart(product, 1);
     } else {
@@ -163,10 +181,24 @@ export default function POS() {
     const existingItem = cartItems.find(
       (item) => item.barcode === product.barcode,
     );
-    const currentStock = product.current_stock || 0;
+
+    // Handle both Supabase and default product structures
+    const currentStock = getProductProperty(
+      product,
+      "current_stock",
+      "stock",
+      0,
+    );
+    const productPrice = getProductProperty(product, "unit_price", "price", 0);
 
     // Check if product has stock tracking enabled
-    const trackInventory = product.track_inventory === true; // Only enforce if explicitly enabled
+    const trackInventory =
+      getProductProperty(
+        product,
+        "track_inventory",
+        "trackInventory",
+        false,
+      ) === true;
 
     if (trackInventory && currentStock <= 0) {
       toast({
@@ -216,14 +248,22 @@ export default function POS() {
         quantity = currentStock;
       }
 
+      // Debug logging to check product data
+      console.log("Product data:", product);
+      console.log("Product unit_price:", product.unit_price);
+      console.log("Product price:", product.price);
+      console.log("Final productPrice:", productPrice);
+
       const newItem: CartItem = {
         id: Date.now(),
         name: product.name,
-        price: product.unit_price || 0,
+        price: Number(productPrice) || 0,
         quantity: quantity,
         barcode: product.barcode,
-        image: product.images?.[0],
+        image: product.images?.[0] || product.image,
       };
+
+      console.log("New cart item:", newItem);
       setCartItems((items) => [...items, newItem]);
     }
   };
@@ -237,12 +277,26 @@ export default function POS() {
     // Find the cart item and check stock
     const cartItem = cartItems.find((item) => item.id === id);
     if (cartItem) {
-      const product = availableProducts.find(
+      // Use Supabase products if available, otherwise fall back to default products
+      const productsToSearch =
+        availableProducts?.length > 0 ? availableProducts : defaultProducts;
+      const product = productsToSearch.find(
         (p) => p.barcode === cartItem.barcode,
       );
       if (product) {
-        const currentStock = product.current_stock || 0;
-        const trackInventory = product.track_inventory === true;
+        const currentStock = getProductProperty(
+          product,
+          "current_stock",
+          "stock",
+          0,
+        );
+        const trackInventory =
+          getProductProperty(
+            product,
+            "track_inventory",
+            "trackInventory",
+            false,
+          ) === true;
 
         // Check if new quantity exceeds available stock
         if (trackInventory && newQuantity > currentStock) {
@@ -908,17 +962,37 @@ export default function POS() {
                                     {item.name}
                                   </span>
                                   {(() => {
-                                    const product = availableProducts.find(
+                                    // Use Supabase products if available, otherwise fall back to default products
+                                    const productsToSearch =
+                                      availableProducts?.length > 0
+                                        ? availableProducts
+                                        : defaultProducts;
+                                    const product = productsToSearch.find(
                                       (p) => p.barcode === item.barcode,
                                     );
                                     if (product) {
-                                      const currentStock =
-                                        product.current_stock || 0;
+                                      const currentStock = getProductProperty(
+                                        product,
+                                        "current_stock",
+                                        "stock",
+                                        0,
+                                      );
                                       const trackInventory =
-                                        product.track_inventory === true;
+                                        getProductProperty(
+                                          product,
+                                          "track_inventory",
+                                          "trackInventory",
+                                          false,
+                                        ) === true;
+                                      const minStock = getProductProperty(
+                                        product,
+                                        "min_stock",
+                                        "minStock",
+                                        0,
+                                      );
                                       if (
                                         trackInventory &&
-                                        currentStock <= (product.min_stock || 0)
+                                        currentStock <= minStock
                                       ) {
                                         return (
                                           <div className="text-xs text-red-600 font-medium">
@@ -929,8 +1003,7 @@ export default function POS() {
                                         );
                                       } else if (
                                         trackInventory &&
-                                        currentStock <=
-                                          (product.min_stock || 0) * 2
+                                        currentStock <= minStock * 2
                                       ) {
                                         return (
                                           <div className="text-xs text-yellow-600 font-medium">
@@ -1092,17 +1165,23 @@ export default function POS() {
                         <Button
                           key={method.id}
                           variant={isSelected ? "default" : "outline"}
-                          className={`h-14 rounded-xl relative overflow-hidden transition-all ${
+                          className={`h-14 rounded-xl relative overflow-hidden transition-all duration-200 ${
                             isSelected
-                              ? `bg-gradient-to-r ${method.color} text-white border-0 shadow-lg`
-                              : "border-slate-300 hover:bg-slate-50"
+                              ? `bg-gradient-to-r ${method.color} text-white border-0 shadow-lg scale-105 ring-2 ring-offset-2 ring-opacity-50 ${
+                                  method.id === "card"
+                                    ? "ring-blue-300"
+                                    : method.id === "cash"
+                                      ? "ring-green-300"
+                                      : "ring-purple-300"
+                                }`
+                              : "border-slate-300 hover:bg-slate-50 hover:scale-102"
                           }`}
                           onClick={() => setPaymentMethod(method.id)}
                         >
                           {Icon && <Icon className="w-5 h-5 mr-2" />}
-                          {method.label}
+                          <span className="font-medium">{method.label}</span>
                           {isSelected && (
-                            <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
+                            <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
                           )}
                         </Button>
                       );
