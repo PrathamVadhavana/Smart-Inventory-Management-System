@@ -933,6 +933,10 @@ const PricingSection = () => {
   const [ref, isVisible] = useIntersectionObserver();
   const [isYearly, setIsYearly] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
+  const [upiDetails, setUpiDetails] = useState({
+      vpa: "",
+    });
+  const total = 4300;
   const [selectedPlan, setSelectedPlan] = useState<{
     name: string;
     amount: number;
@@ -1162,6 +1166,13 @@ const PricingSection = () => {
                 <div className="text-xs text-muted-foreground">
                   Tip: On desktop, copy the UPI link into your UPI app if it
                   doesn’t open automatically.
+                </div>
+                <div>
+                  <img
+                            alt="UPI QR"
+                            src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent("upi://pay?pa=" + (upiDetails.vpa || "example@upi") + "&am=" + total + "&tn=POS%20Payment")}`}
+                            className="rounded"
+                          />
                 </div>
               </>
             ) : (

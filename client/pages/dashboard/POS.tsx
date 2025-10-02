@@ -135,6 +135,30 @@ export default function POS() {
   // Toast hook
   const { toast } = useToast();
 
+  // Load tax settings from localStorage
+  const [taxSettings, setTaxSettings] = useState({
+    defaultTaxRate: 18,
+    taxInclusive: false,
+    taxName: "GST",
+  });
+
+  // Load tax settings from localStorage on component mount
+  useEffect(() => {
+    try {
+      const savedTax = localStorage.getItem('tax_settings');
+      if (savedTax) {
+        const parsedTax = JSON.parse(savedTax);
+        setTaxSettings({
+          defaultTaxRate: parsedTax.defaultTaxRate || 18,
+          taxInclusive: parsedTax.taxInclusive || false,
+          taxName: parsedTax.taxName || "GST",
+        });
+      }
+    } catch (error) {
+      console.error('Error loading tax settings:', error);
+    }
+  }, []);
+
   // Load last order from localStorage
   useEffect(() => {
     try {
@@ -161,6 +185,18 @@ export default function POS() {
   }, []);
 
   const handleBarcodeScanned = (barcode: string) => {
+    // Check if product is already in cart
+    const existingCartItem = cartItems.find((item) => item.barcode === barcode);
+
+    if (existingCartItem) {
+      toast({
+        title: "Product Already in Cart",
+        description: `${existingCartItem.name} is already in your cart. Use the quantity controls to adjust the amount.`,
+        variant: "default",
+      });
+      return;
+    }
+
     // Use Supabase products if available, otherwise fall back to default products
     const productsToSearch =
       availableProducts?.length > 0 ? availableProducts : defaultProducts;
@@ -332,7 +368,7 @@ export default function POS() {
     0,
   );
   const discountAmount = (subtotal * discount) / 100;
-  const taxRate = 18; // GST 18%
+  const taxRate = taxSettings.defaultTaxRate; // Use dynamic tax rate from settings
   const taxAmount = ((subtotal - discountAmount) * taxRate) / 100;
   const total = subtotal - discountAmount + taxAmount;
 
@@ -550,7 +586,7 @@ export default function POS() {
       cartItems,
       selectedCustomer,
       discount,
-      18, // GST rate
+      taxSettings.defaultTaxRate, // Use dynamic tax rate from settings
       paymentMethod,
     );
 
@@ -742,7 +778,7 @@ export default function POS() {
       cartItems,
       selectedCustomer,
       discount,
-      18, // GST rate
+      taxSettings.defaultTaxRate, // Use dynamic tax rate from settings
       paymentMethod || "Cash",
     );
 

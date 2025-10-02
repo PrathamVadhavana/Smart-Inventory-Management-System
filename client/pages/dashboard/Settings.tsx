@@ -20,6 +20,7 @@ import {
   Globe,
   Save,
   RefreshCw,
+  AlertCircle,
 } from "lucide-react";
 
 interface CompanySettings {
@@ -65,6 +66,12 @@ export default function Settings() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("company");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Validation errors state
+  const [companyErrors, setCompanyErrors] = useState<{[key: string]: string}>({});
+  const [taxErrors, setTaxErrors] = useState<{[key: string]: string}>({});
+  const [notificationErrors, setNotificationErrors] = useState<{[key: string]: string}>({});
+  const [systemErrors, setSystemErrors] = useState<{[key: string]: string}>({});
 
   // Company settings
   const [companySettings, setCompanySettings] = useState<CompanySettings>({
@@ -136,7 +143,140 @@ export default function Settings() {
     }
   }, []);
 
+  // Validation functions
+  const validateEmail = (email: string): string => {
+    if (!email) return "Email is required";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) return "Please enter a valid email address";
+    return "";
+  };
+
+  const validatePhone = (phone: string): string => {
+    if (!phone) return "Phone number is required";
+    const phoneRegex = /^[\+]?[1-9][\d]{9,14}$/;
+    if (!phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''))) {
+      return "Please enter a valid phone number";
+    }
+    return "";
+  };
+
+  const validateWebsite = (website: string): string => {
+    if (!website) return "";
+    try {
+      new URL(website);
+      return "";
+    } catch {
+      return "Please enter a valid website URL";
+    }
+  };
+
+  const validateGST = (gst: string): string => {
+    if (!gst) return "";
+    const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+    if (!gstRegex.test(gst)) {
+      return "Please enter a valid GST number (15 characters)";
+    }
+    return "";
+  };
+
+  const validatePAN = (pan: string): string => {
+    if (!pan) return "";
+    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+    if (!panRegex.test(pan)) {
+      return "Please enter a valid PAN number (10 characters)";
+    }
+    return "";
+  };
+
+  const validateTaxRate = (rate: number): string => {
+    if (rate < 0 || rate > 100) {
+      return "Tax rate must be between 0 and 100";
+    }
+    return "";
+  };
+
+  const validateSessionTimeout = (timeout: number): string => {
+    if (timeout < 5 || timeout > 480) {
+      return "Session timeout must be between 5 and 480 minutes";
+    }
+    return "";
+  };
+
+  const validateCompanySettings = (): boolean => {
+    const errors: {[key: string]: string} = {};
+
+    errors.name = !companySettings.name.trim() ? "Company name is required" : "";
+    errors.email = validateEmail(companySettings.email);
+    errors.phone = validatePhone(companySettings.phone);
+    errors.website = validateWebsite(companySettings.website);
+    errors.gstNumber = validateGST(companySettings.gstNumber);
+    errors.panNumber = validatePAN(companySettings.panNumber);
+
+    setCompanyErrors(errors);
+    return Object.values(errors).every(error => !error);
+  };
+
+  const validateTaxSettings = (): boolean => {
+    const errors: {[key: string]: string} = {};
+
+    errors.defaultTaxRate = validateTaxRate(taxSettings.defaultTaxRate);
+    if (taxSettings.taxName && !taxSettings.taxName.trim()) {
+      errors.taxName = "Tax name cannot be empty if provided";
+    }
+
+    setTaxErrors(errors);
+    return Object.values(errors).every(error => !error);
+  };
+
+  const validateNotificationSettings = (): boolean => {
+    const errors: {[key: string]: string} = {};
+
+    if (notificationSettings.emailNotifications && notificationSettings.emailAddress) {
+      errors.emailAddress = validateEmail(notificationSettings.emailAddress);
+    }
+
+    setNotificationErrors(errors);
+    return Object.values(errors).every(error => !error);
+  };
+
+  const validateSystemSettings = (): boolean => {
+    const errors: {[key: string]: string} = {};
+
+    errors.sessionTimeout = validateSessionTimeout(systemSettings.sessionTimeout);
+
+    setSystemErrors(errors);
+    return Object.values(errors).every(error => !error);
+  };
+
   const saveSettings = async (settingsType: string, settings: any) => {
+    // Validate before saving
+    let isValid = false;
+    switch (settingsType) {
+      case 'company':
+        isValid = validateCompanySettings();
+        break;
+      case 'tax':
+        isValid = validateTaxSettings();
+        break;
+      case 'notification':
+        isValid = validateNotificationSettings();
+        break;
+      case 'system':
+        isValid = validateSystemSettings();
+        break;
+      default:
+        isValid = true;
+    }
+
+    if (!isValid) {
+      toast({
+        title: "Validation Error",
+        description: "Please fix the errors before saving.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       localStorage.setItem(`${settingsType}_settings`, JSON.stringify(settings));
@@ -157,7 +297,7 @@ export default function Settings() {
 
   const resetSettings = (settingsType: string) => {
     if (confirm(`Are you sure you want to reset ${settingsType} settings to default?`)) {
-      // Reset to default values
+      // Reset to default values and clear validation errors
       switch (settingsType) {
         case 'company':
           setCompanySettings({
@@ -173,6 +313,7 @@ export default function Settings() {
             gstNumber: "",
             panNumber: "",
           });
+          setCompanyErrors({});
           break;
         case 'tax':
           setTaxSettings({
@@ -181,6 +322,7 @@ export default function Settings() {
             taxName: "GST",
             taxNumber: "",
           });
+          setTaxErrors({});
           break;
         case 'notification':
           setNotificationSettings({
@@ -190,6 +332,7 @@ export default function Settings() {
             systemAlerts: true,
             emailAddress: "",
           });
+          setNotificationErrors({});
           break;
         case 'system':
           setSystemSettings({
@@ -201,9 +344,21 @@ export default function Settings() {
             backupFrequency: "daily",
             sessionTimeout: 30,
           });
+          setSystemErrors({});
           break;
       }
     }
+  };
+
+  // Helper component for error display
+  const ErrorMessage = ({ error }: { error: string }) => {
+    if (!error) return null;
+    return (
+      <div className="flex items-center gap-1 text-sm text-destructive mt-1">
+        <AlertCircle className="w-4 h-4" />
+        <span>{error}</span>
+      </div>
+    );
   };
 
   return (
@@ -253,7 +408,9 @@ export default function Settings() {
                     value={companySettings.name}
                     onChange={(e) => setCompanySettings({ ...companySettings, name: e.target.value })}
                     placeholder="Enter company name"
+                    className={companyErrors.name ? "border-destructive" : ""}
                   />
+                  <ErrorMessage error={companyErrors.name} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="companyEmail">Email *</Label>
@@ -263,7 +420,9 @@ export default function Settings() {
                     value={companySettings.email}
                     onChange={(e) => setCompanySettings({ ...companySettings, email: e.target.value })}
                     placeholder="company@example.com"
+                    className={companyErrors.email ? "border-destructive" : ""}
                   />
+                  <ErrorMessage error={companyErrors.email} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="companyPhone">Phone *</Label>
@@ -272,7 +431,9 @@ export default function Settings() {
                     value={companySettings.phone}
                     onChange={(e) => setCompanySettings({ ...companySettings, phone: e.target.value })}
                     placeholder="+91 XXXXX XXXXX"
+                    className={companyErrors.phone ? "border-destructive" : ""}
                   />
+                  <ErrorMessage error={companyErrors.phone} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="companyWebsite">Website</Label>
@@ -281,7 +442,9 @@ export default function Settings() {
                     value={companySettings.website}
                     onChange={(e) => setCompanySettings({ ...companySettings, website: e.target.value })}
                     placeholder="https://www.example.com"
+                    className={companyErrors.website ? "border-destructive" : ""}
                   />
+                  <ErrorMessage error={companyErrors.website} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="gstNumber">GST Number</Label>
@@ -290,7 +453,9 @@ export default function Settings() {
                     value={companySettings.gstNumber}
                     onChange={(e) => setCompanySettings({ ...companySettings, gstNumber: e.target.value })}
                     placeholder="22AAAAA0000A1Z5"
+                    className={companyErrors.gstNumber ? "border-destructive" : ""}
                   />
+                  <ErrorMessage error={companyErrors.gstNumber} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="panNumber">PAN Number</Label>
@@ -299,7 +464,9 @@ export default function Settings() {
                     value={companySettings.panNumber}
                     onChange={(e) => setCompanySettings({ ...companySettings, panNumber: e.target.value })}
                     placeholder="AAAAA0000A"
+                    className={companyErrors.panNumber ? "border-destructive" : ""}
                   />
+                  <ErrorMessage error={companyErrors.panNumber} />
                 </div>
               </div>
               <div className="space-y-2">
@@ -380,7 +547,9 @@ export default function Settings() {
                     value={taxSettings.taxName}
                     onChange={(e) => setTaxSettings({ ...taxSettings, taxName: e.target.value })}
                     placeholder="GST, VAT, etc."
+                    className={taxErrors.taxName ? "border-destructive" : ""}
                   />
+                  <ErrorMessage error={taxErrors.taxName} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="defaultTaxRate">Default Tax Rate (%)</Label>
@@ -390,7 +559,9 @@ export default function Settings() {
                     value={taxSettings.defaultTaxRate}
                     onChange={(e) => setTaxSettings({ ...taxSettings, defaultTaxRate: parseFloat(e.target.value) || 0 })}
                     placeholder="18"
+                    className={taxErrors.defaultTaxRate ? "border-destructive" : ""}
                   />
+                  <ErrorMessage error={taxErrors.defaultTaxRate} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="taxNumber">Tax Number</Label>
@@ -495,7 +666,9 @@ export default function Settings() {
                   value={notificationSettings.emailAddress}
                   onChange={(e) => setNotificationSettings({ ...notificationSettings, emailAddress: e.target.value })}
                   placeholder="notifications@example.com"
+                  className={notificationErrors.emailAddress ? "border-destructive" : ""}
                 />
+                <ErrorMessage error={notificationErrors.emailAddress} />
               </div>
               <div className="flex justify-end space-x-2">
                 <Button
@@ -618,7 +791,9 @@ export default function Settings() {
                     value={systemSettings.sessionTimeout}
                     onChange={(e) => setSystemSettings({ ...systemSettings, sessionTimeout: parseInt(e.target.value) || 30 })}
                     placeholder="30"
+                    className={systemErrors.sessionTimeout ? "border-destructive" : ""}
                   />
+                  <ErrorMessage error={systemErrors.sessionTimeout} />
                 </div>
               </div>
               <div className="flex items-center justify-between">
